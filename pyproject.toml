@@ -1,10 +1,10 @@
 [build-system]
-requires = ["setuptools>=61", "wheel"]
+requires = ["setuptools>=61", "wheel", "setuptools-scm>=8"]
 build-backend = "setuptools.build_meta"
 
 [project]
 name = "visigit"
-version = "0.3.0"
+dynamic = ["version"]
 description = "Graphviz visualizations of git repository structure"
 readme = "README.md"
 license = { file = "LICENSE" }
@@ -29,6 +29,7 @@ visigit = "visigit.cli:main"
 
 [project.urls]
 Repository = "https://github.com/rcronk/visigit"
+Changelog = "https://github.com/rcronk/visigit/releases"
 
 [tool.setuptools.packages.find]
 where = ["."]
@@ -36,6 +37,14 @@ include = ["visigit*"]
 
 [tool.setuptools.package-data]
 visigit = ["display.html"]
+
+[tool.setuptools_scm]
+# The publish workflow (issue #60) sets SETUPTOOLS_SCM_PRETEND_VERSION so a
+# build embeds the version we're about to tag *before* the tag exists --
+# tagging happens only after a successful PyPI publish, so a failed publish
+# never leaves a dangling tag. version_file makes the resolved version
+# importable at runtime without needing the package to be pip-installed.
+version_file = "visigit/_version.py"
 
 [tool.ruff]
 line-length = 100
