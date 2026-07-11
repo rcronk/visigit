@@ -17,7 +17,7 @@
 Most git tutorials describe commands in words; this series shows you the actual data structure git is manipulating underneath every command — a DAG of commit objects plus a handful of pointers. Setting up a live-updating diagram alongside your terminal is the foundation the whole series relies on: once you can see the graph change in real time, every later episode becomes a direct observation instead of an act of faith in what the manual says.
 
 #### YouTube Title
-> See Your Git: Live Repository Diagrams That Update as You Type Commands
+> Visualize Git Commits Live: Setup in 5 Minutes
 
 #### YouTube Description
 > Stop guessing what git commands do — watch them happen. This video sets up visigit, a free tool that turns any git repository into a live diagram. Every command you run updates the graph in real time. Install it in under five minutes and you'll never memorize git blindly again.

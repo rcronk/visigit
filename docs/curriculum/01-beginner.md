@@ -17,7 +17,7 @@
 git's data model is deceptively simple: a commit is a snapshot with a pointer to its parent, a branch is a movable label pointing at a commit, and HEAD is a label pointing at whichever branch (or commit) you're standing on. Every other git command in this series is just a variation on moving or creating these three kinds of pointers. Understanding this three-tier structure from the very first commit is what makes reset, rebase, and detached HEAD make sense later instead of feeling like separate tricks to memorize.
 
 #### YouTube Title
-> git init, add, commit — Watch the Commit Graph Build Itself in Real Time
+> git init, add, commit: Watch the Commit Graph Build Live
 
 #### YouTube Description
 > You've run git init and git commit a hundred times. But do you know what they actually create? This video uses visigit to show you the moment HEAD, a branch ref, and your first commit node appear in the graph — and how the chain grows with every new commit. By the end you'll understand exactly what git status and git log are reporting.
@@ -57,7 +57,7 @@ git's data model is deceptively simple: a commit is a snapshot with a pointer to
 Git tracks files it already knows about and reports everything else as untracked — .gitignore only controls which NEW files get offered up for tracking; it has no opinion about files git has already committed. This is the single most common .gitignore misunderstanding, and it matters because people routinely assume adding a file to .gitignore will make a secret or a build artifact "go away," when it actually does nothing until you explicitly untrack it with git rm --cached.
 
 #### YouTube Title
-> .gitignore Doesn't Untrack Files — Here's What It Actually Does (and What git clean Does Instead)
+> .gitignore Doesn't Untrack Files (Here's What Does)
 
 #### YouTube Description
 > Everyone's first .gitignore mistake is the same: adding a file to it and expecting git to stop tracking it. .gitignore only stops NEW files from being tracked — it has zero effect on files git already knows about. This video uses visigit's verbose-mode Untracked box to show exactly what .gitignore prevents, what git rm --cached does to actually untrack a file, and what git clean deletes that .gitignore doesn't.
@@ -100,7 +100,7 @@ Git tracks files it already knows about and reports everything else as untracked
 A branch is not a copy of your code — it's a pointer to a single commit, which is why creating one is instant regardless of repository size. The entire concept of "lightweight branching" that makes git workflows fast and cheap depends on this fact, and once you've seen a branch created as nothing but a new label on an existing commit, phrases like "check out a branch" stop sounding like file operations and start sounding like what they are: pointer moves.
 
 #### YouTube Title
-> git branch Doesn't Copy Anything — Here's What It Actually Does to Your Repository
+> git branch Doesn't Copy Your Code — Here's What It Does
 
 #### YouTube Description
 > Most people think creating a branch copies their code. It doesn't — it creates a single pointer to an existing commit. Watch visigit show you the exact moment a branch label appears in the graph and how it splits from its sibling when you make your first commit. This one diagram will change how you think about branches forever.
@@ -139,7 +139,7 @@ A branch is not a copy of your code — it's a pointer to a single commit, which
 "Merge" is really two different operations wearing one name: a fast-forward, which just slides a pointer forward with no new commit, and a true merge, which creates a new commit with two parents. Knowing which one you're about to get — and that --no-ff can force the second even when the first would work — is the difference between a history that shows exactly when features were integrated and one that quietly erases that information.
 
 #### YouTube Title
-> git merge --no-ff Creates a Diamond — Here's What That Means and Why It Matters
+> git merge --no-ff: Why It Creates a Diamond in Your History
 
 #### YouTube Description
 > There are two completely different graph shapes that can result from a merge: a straight line (fast-forward) or a diamond (no-fast-forward). This video shows both side by side in visigit so you can see exactly when git moves a pointer vs when it creates a real merge commit — and why that choice affects your project history permanently.
@@ -179,7 +179,7 @@ A branch is not a copy of your code — it's a pointer to a single commit, which
 A merge conflict isn't git being broken, it's git being honest that it can't guess which change you want — and it pauses by writing MERGE_HEAD, a real ref pointing at the commit you're merging in, so both you and git can keep track of what's being combined. Understanding that MERGE_HEAD is just an ordinary pointer, not a special error state, is what turns "I'm scared of conflicts" into "I know exactly what git is waiting on me to do."
 
 #### YouTube Title
-> Merge Conflicts Aren't Scary: git Writes MERGE_HEAD and visigit Shows You Exactly Where You Are
+> Resolving a Git Merge Conflict: What MERGE_HEAD Shows You
 
 #### YouTube Description
 > A merge conflict stops git mid-merge and leaves you in a state most people find terrifying. It shouldn't be. When a merge conflicts, git writes a ref called MERGE_HEAD pointing at the commit you're merging in — and visigit shows it right in the graph, so you can always see both sides of the merge and exactly what you're resolving. This video walks a conflict from start to finish: what MERGE_HEAD is, how to resolve it, and how to bail out with --abort.
@@ -218,7 +218,7 @@ A merge conflict isn't git being broken, it's git being honest that it can't gue
 All three flavors of git reset do the exact same first step — move the current branch's pointer to a different commit — and only differ in how much of the index and working tree they drag along with it. Once you see that --soft, --mixed, and --hard are one operation with three levels of "and also," reset stops being three commands to memorize and becomes one mental model with a dial on it.
 
 #### YouTube Title
-> git reset --soft vs --mixed vs --hard: Watch the Branch Pointer Move Three Different Ways
+> git reset --soft vs --mixed vs --hard Explained
 
 #### YouTube Description
 > git reset is one of the most feared commands in git — and the most misunderstood. All three modes do the same thing to the branch pointer (move it back), so in normal mode they produce an identical graph; what they differ on is how much of your work they preserve, which you see in verbose mode. And the commit you reset past does not vanish — ORIG_HEAD still points to it. Watch visigit show you all of this, and you'll never confuse the three modes again.
@@ -258,7 +258,7 @@ All three flavors of git reset do the exact same first step — move the current
 git doesn't have one "undo," it has three, and they do fundamentally different things to history: revert adds a new commit, amend replaces the last commit with a new one, and reset moves the pointer without changing any commit's content. Picking the wrong one is exactly how people rewrite history they've already shared with a team — this episode exists so "how do I undo this" always leads to the right tool instead of a reflexive git reset --hard.
 
 #### YouTube Title
-> git revert vs git commit --amend vs git reset: Three Ways to Undo, Three Different Graphs
+> git revert vs amend vs reset: 3 Ways to Undo in Git
 
 #### YouTube Description
 > "Undo" in git isn't one thing. revert ADDS a new commit that cancels an old one (safe to share). amend REWRITES your last commit (new SHA, the old one orphaned). reset MOVES the branch pointer back. They look similar in the terminal but do completely different things to the graph — and visigit makes the difference impossible to miss. By the end you'll always pick the right one.
@@ -298,7 +298,7 @@ git doesn't have one "undo," it has three, and they do fundamentally different t
 HEAD is normally two hops from a commit — HEAD points at a branch, and the branch points at the commit — but git also allows HEAD to point directly at a commit, skipping the branch entirely. That's all "detached HEAD" is: a missing middle link, not a broken repository. Knowing this means the scariest sentence in git's output ("you are in 'detached HEAD' state") becomes a state you can calmly read off the graph and walk out of.
 
 #### YouTube Title
-> "You are in 'detached HEAD' state" — What It Means and How to Escape
+> Detached HEAD in Git: What It Means and How to Escape
 
 #### YouTube Description
 > "You are in 'detached HEAD' state" is one of the most alarming messages in git. But it's not dangerous — it just means HEAD is pointing directly at a commit instead of through a branch. Watch visigit show you exactly what detached HEAD looks like in the graph, what happens to commits you make in that state, and the two ways to safely get back.
@@ -337,7 +337,7 @@ HEAD is normally two hops from a commit — HEAD points at a branch, and the bra
 Every commit in this series so far has had a parent — but git doesn't require that, and --orphan is how you deliberately create another commit with zero parents inside a repo that already has history. This is exactly the mechanism behind real-world patterns like a gh-pages branch living beside your source code with no shared history at all, and seeing it happen on purpose demystifies what would otherwise look like a broken or corrupted graph.
 
 #### YouTube Title
-> git checkout --orphan: Two Branches, One Repo, Zero Shared History
+> git checkout --orphan: Branches With Zero Shared History
 
 #### YouTube Description
 > Every commit you've made in this series so far has had a parent — except the very first. git checkout --orphan lets you deliberately create ANOTHER parentless commit, on a brand-new branch, inside a repo that already has history. That's exactly how gh-pages branches and "start clean" branches work. This video shows the disconnected commit forming live in visigit, and proves with git merge-base that it truly shares nothing with main.
