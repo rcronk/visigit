@@ -65,6 +65,10 @@ graph to watch because config doesn't touch the object store or refs.)
 **Target length:** 5–8 min
 **Commands covered:** git init, pip install
 
+#### Why This Matters
+
+Most git tutorials describe commands in words; this series shows you the actual data structure git is manipulating underneath every command — a DAG of commit objects plus a handful of pointers. Setting up a live-updating diagram alongside your terminal is the foundation the whole series relies on: once you can see the graph change in real time, every later episode becomes a direct observation instead of an act of faith in what the manual says.
+
 #### YouTube Title
 > See Your Git: Live Repository Diagrams That Update as You Type Commands
 
@@ -99,6 +103,10 @@ graph to watch because config doesn't touch the object store or refs.)
 **visigit mode:** normal
 **Target length:** 10–12 min
 **Commands covered:** git init, git status, git add, git commit, git log
+
+#### Why This Matters
+
+git's data model is deceptively simple: a commit is a snapshot with a pointer to its parent, a branch is a movable label pointing at a commit, and HEAD is a label pointing at whichever branch (or commit) you're standing on. Every other git command in this series is just a variation on moving or creating these three kinds of pointers. Understanding this three-tier structure from the very first commit is what makes reset, rebase, and detached HEAD make sense later instead of feeling like separate tricks to memorize.
 
 #### YouTube Title
 > git init, add, commit — Watch the Commit Graph Build Itself in Real Time
@@ -135,6 +143,10 @@ graph to watch because config doesn't touch the object store or refs.)
 **visigit mode:** verbose
 **Target length:** 9–11 min
 **Commands covered:** git status, .gitignore, git check-ignore, git rm --cached, git clean -n/-fd, git status --ignored
+
+#### Why This Matters
+
+Git tracks files it already knows about and reports everything else as untracked — .gitignore only controls which NEW files get offered up for tracking; it has no opinion about files git has already committed. This is the single most common .gitignore misunderstanding, and it matters because people routinely assume adding a file to .gitignore will make a secret or a build artifact "go away," when it actually does nothing until you explicitly untrack it with git rm --cached.
 
 #### YouTube Title
 > .gitignore Doesn't Untrack Files — Here's What It Actually Does (and What git clean Does Instead)
@@ -174,6 +186,10 @@ graph to watch because config doesn't touch the object store or refs.)
 **Target length:** 10–13 min
 **Commands covered:** git branch, git checkout -b, git switch -c, git switch, git checkout
 
+#### Why This Matters
+
+A branch is not a copy of your code — it's a pointer to a single commit, which is why creating one is instant regardless of repository size. The entire concept of "lightweight branching" that makes git workflows fast and cheap depends on this fact, and once you've seen a branch created as nothing but a new label on an existing commit, phrases like "check out a branch" stop sounding like file operations and start sounding like what they are: pointer moves.
+
 #### YouTube Title
 > git branch Doesn't Copy Anything — Here's What It Actually Does to Your Repository
 
@@ -208,6 +224,10 @@ graph to watch because config doesn't touch the object store or refs.)
 **visigit mode:** normal (commit chain) + branch (topology)
 **Target length:** 12–15 min
 **Commands covered:** git merge, git merge --no-ff
+
+#### Why This Matters
+
+"Merge" is really two different operations wearing one name: a fast-forward, which just slides a pointer forward with no new commit, and a true merge, which creates a new commit with two parents. Knowing which one you're about to get — and that --no-ff can force the second even when the first would work — is the difference between a history that shows exactly when features were integrated and one that quietly erases that information.
 
 #### YouTube Title
 > git merge --no-ff Creates a Diamond — Here's What That Means and Why It Matters
@@ -245,6 +265,10 @@ graph to watch because config doesn't touch the object store or refs.)
 **Target length:** 10–12 min
 **Commands covered:** git merge (conflict), git status, git add, git commit, git merge --abort
 
+#### Why This Matters
+
+A merge conflict isn't git being broken, it's git being honest that it can't guess which change you want — and it pauses by writing MERGE_HEAD, a real ref pointing at the commit you're merging in, so both you and git can keep track of what's being combined. Understanding that MERGE_HEAD is just an ordinary pointer, not a special error state, is what turns "I'm scared of conflicts" into "I know exactly what git is waiting on me to do."
+
 #### YouTube Title
 > Merge Conflicts Aren't Scary: git Writes MERGE_HEAD and visigit Shows You Exactly Where You Are
 
@@ -279,6 +303,10 @@ graph to watch because config doesn't touch the object store or refs.)
 **visigit mode:** normal
 **Target length:** 12–14 min
 **Commands covered:** git reset --soft, git reset --mixed, git reset --hard
+
+#### Why This Matters
+
+All three flavors of git reset do the exact same first step — move the current branch's pointer to a different commit — and only differ in how much of the index and working tree they drag along with it. Once you see that --soft, --mixed, and --hard are one operation with three levels of "and also," reset stops being three commands to memorize and becomes one mental model with a dial on it.
 
 #### YouTube Title
 > git reset --soft vs --mixed vs --hard: Watch the Branch Pointer Move Three Different Ways
@@ -316,6 +344,10 @@ graph to watch because config doesn't touch the object store or refs.)
 **Target length:** 11–13 min
 **Commands covered:** git revert, git commit --amend, (contrast with git reset)
 
+#### Why This Matters
+
+git doesn't have one "undo," it has three, and they do fundamentally different things to history: revert adds a new commit, amend replaces the last commit with a new one, and reset moves the pointer without changing any commit's content. Picking the wrong one is exactly how people rewrite history they've already shared with a team — this episode exists so "how do I undo this" always leads to the right tool instead of a reflexive git reset --hard.
+
 #### YouTube Title
 > git revert vs git commit --amend vs git reset: Three Ways to Undo, Three Different Graphs
 
@@ -352,6 +384,10 @@ graph to watch because config doesn't touch the object store or refs.)
 **Target length:** 10–12 min
 **Commands covered:** git checkout SHA, git switch --detach, git checkout -b recovery, git switch -
 
+#### Why This Matters
+
+HEAD is normally two hops from a commit — HEAD points at a branch, and the branch points at the commit — but git also allows HEAD to point directly at a commit, skipping the branch entirely. That's all "detached HEAD" is: a missing middle link, not a broken repository. Knowing this means the scariest sentence in git's output ("you are in 'detached HEAD' state") becomes a state you can calmly read off the graph and walk out of.
+
 #### YouTube Title
 > "You are in 'detached HEAD' state" — What It Means and How to Escape
 
@@ -386,6 +422,10 @@ graph to watch because config doesn't touch the object store or refs.)
 **visigit mode:** normal + branch
 **Target length:** 9–10 min
 **Commands covered:** git checkout --orphan, git switch --orphan, git rm -rf ., git merge-base
+
+#### Why This Matters
+
+Every commit in this series so far has had a parent — but git doesn't require that, and --orphan is how you deliberately create another commit with zero parents inside a repo that already has history. This is exactly the mechanism behind real-world patterns like a gh-pages branch living beside your source code with no shared history at all, and seeing it happen on purpose demystifies what would otherwise look like a broken or corrupted graph.
 
 #### YouTube Title
 > git checkout --orphan: Two Branches, One Repo, Zero Shared History
@@ -426,6 +466,10 @@ graph to watch because config doesn't touch the object store or refs.)
 **Target length:** 13–15 min
 **Commands covered:** git merge --no-ff, git rebase, git log --oneline --graph
 
+#### Why This Matters
+
+Merge and rebase solve the identical problem — integrating diverged work — with opposite philosophies: merge preserves exactly what happened (including the diamond shape), while rebase rewrites what happened into a story that never diverged in the first place. Neither is "correct"; they're a tradeoff between historical honesty and readability, and the rest of the advanced tier (interactive rebase, --onto, rerere) only makes sense once this tradeoff is clear.
+
 #### YouTube Title
 > git merge vs git rebase: Same Result, Completely Different Graph — See Both Live
 
@@ -461,6 +505,10 @@ graph to watch because config doesn't touch the object store or refs.)
 **visigit mode:** normal
 **Target length:** 12–14 min
 **Commands covered:** git rebase (conflict), git status, git add, git rebase --continue, git rebase --skip, git rebase --abort
+
+#### Why This Matters
+
+Because rebase replays your commits one at a time instead of integrating them all at once like a merge, a single line of disputed code can produce a conflict on every commit that touches it — which is why rebase conflicts feel repetitive in a way merge conflicts don't. Understanding that each replay is its own mini-merge is what turns "why do I keep hitting the same conflict" into an expected, manageable part of the process instead of a sign something's gone wrong.
 
 #### YouTube Title
 > Rebase Conflicts Feel Like Whack-a-Mole — Here's Why, and How to Get Through One
@@ -501,6 +549,10 @@ graph to watch because config doesn't touch the object store or refs.)
 **Target length:** 12–14 min
 **Commands covered:** git remote add, git fetch, git pull, git push, git branch -vv
 
+#### Why This Matters
+
+Your local main and origin/main are two separate, independently-moving pointers, and the second one is nothing but a cached snapshot of what the remote looked like at your last fetch — it does not update itself. This distinction is the root of most "but I thought I had the latest code" confusion, and once origin/* refs are visibly separate objects in the graph instead of an abstract idea, fetch/pull/push stop being magic syncing and become exactly what they are: explicit pointer updates you control.
+
 #### YouTube Title
 > origin/main Is Not main — How git fetch, pull, and push Move the Remote Tracking Pointer
 
@@ -536,6 +588,10 @@ graph to watch because config doesn't touch the object store or refs.)
 **Target length:** 11–13 min
 **Commands covered:** git clone, git push, git fetch, git pull (with a bare "origin" on the same machine)
 
+#### Why This Matters
+
+Every push, fetch, and pull you've run so far has been a black box — you've seen your side of the exchange but never the other end. Watching a real bare repository update live, side by side with your working copy, turns "the remote" from an abstract concept into a second, equally real graph that commits move between, which is the mental model every later remote-workflow episode assumes you already have.
+
 #### YouTube Title
 > See Both Sides of git push/fetch: Visualize Your Repo AND origin Side by Side
 
@@ -570,6 +626,10 @@ graph to watch because config doesn't touch the object store or refs.)
 **visigit mode:** normal
 **Target length:** 11–13 min
 **Commands covered:** git remote add upstream, git remote -v, git fetch upstream, git merge upstream/main (or rebase), git push origin, git switch -c, git branch -vv
+
+#### Why This Matters
+
+The single-remote model from EP13 breaks down the moment you contribute to a project you don't have write access to — you need one remote that receives your work (origin, your fork) and a separate one that's the actual source of truth (upstream). This episode exists because the fork workflow is how most real open-source contribution happens, and conflating origin with "the project" is the single most common point of confusion for anyone's first pull request.
 
 #### YouTube Title
 > origin Isn't Always the Real Project — Meet upstream and the Fork Workflow
@@ -609,6 +669,10 @@ graph to watch because config doesn't touch the object store or refs.)
 **Target length:** 10–12 min
 **Commands covered:** git stash, git stash list, git stash pop, git stash drop, git stash apply
 
+#### Why This Matters
+
+git stash doesn't have its own storage mechanism — it creates a genuine commit object, just one that most tools (and normal-mode visigit) don't show you by default. Realizing that a stash is a commit like any other, hanging off a ref called refs/stash, explains everything about how it behaves: why it has a SHA, why multiple stashes stack like a list, and why it isn't magic.
+
 #### YouTube Title
 > git stash Creates a Real Commit — You Just Can't See It in Normal Mode
 
@@ -645,6 +709,10 @@ graph to watch because config doesn't touch the object store or refs.)
 **Target length:** 10–12 min
 **Commands covered:** git cherry-pick, git cherry-pick --no-commit, git cherry-pick --abort
 
+#### Why This Matters
+
+A commit's SHA is a hash of its content, and its content includes its parent's SHA — so replaying the exact same change onto a different parent necessarily produces a different SHA, even though nothing about the change itself changed. This is the clearest hands-on proof in the whole series that git identity is about content and lineage together, not just content, and it's the same fact that explains why rebase and amend also produce new SHAs.
+
 #### YouTube Title
 > git cherry-pick Copies a Commit — But the SHA Changes Every Time. Here's Why.
 
@@ -680,6 +748,10 @@ graph to watch because config doesn't touch the object store or refs.)
 **visigit mode:** normal
 **Target length:** 12–14 min
 **Commands covered:** git reflog, git reset --hard, git checkout SHA, git branch recover
+
+#### Why This Matters
+
+git almost never deletes a commit the instant it becomes unreachable — it just stops being able to find it through any ref, while the object itself sits untouched in .git/objects for weeks. reflog is the log of everywhere HEAD has pointed, which means "I lost my commits" is almost always actually "I lost the address," and this episode is about how to look the address back up.
 
 #### YouTube Title
 > You Didn't Lose Your Commits — git reflog Is Git's Secret Safety Net
@@ -718,6 +790,10 @@ graph to watch because config doesn't touch the object store or refs.)
 **Target length:** 10–12 min
 **Commands covered:** observing ORIG_HEAD, FETCH_HEAD, MERGE_HEAD, CHERRY_PICK_HEAD, BISECT_HEAD
 
+#### Why This Matters
+
+ORIG_HEAD, MERGE_HEAD, FETCH_HEAD, CHERRY_PICK_HEAD, and BISECT_HEAD are not five unrelated features to memorize — they're the same pattern repeated five times: before doing something to HEAD that might need undoing or referencing later, git writes down where things stood in an ordinary ref file. Recognizing that pattern means the next unfamiliar ALL_CAPS_HEAD you see in git's output won't need a new mental model, just the one you already have.
+
 #### YouTube Title
 > The Hidden Refs That Save You: ORIG_HEAD, FETCH_HEAD, and git's Other Safety Nets
 
@@ -752,6 +828,10 @@ graph to watch because config doesn't touch the object store or refs.)
 **visigit mode:** normal
 **Target length:** 11–13 min
 **Commands covered:** git log --grep, git log --author, git log -S, git log -G, git blame, git blame -L, git show
+
+#### Why This Matters
+
+Most of what you do with git day to day isn't changing history, it's asking questions about history that already exists — who wrote this, when did this string first appear, why does this line look the way it does. This episode is a deliberate change of pace from "watch the graph change" to "watch the search narrow," because archaeology skills are just as core to using git well as the mutating commands are.
 
 #### YouTube Title
 > Who Wrote This Line, and Why? git blame, log -S, and log --grep Explained
@@ -789,6 +869,10 @@ graph to watch because config doesn't touch the object store or refs.)
 **visigit mode:** verbose
 **Target length:** 10–12 min
 **Commands covered:** git add -p, git add -i, git diff, git restore -p, git commit -p
+
+#### Why This Matters
+
+The index isn't required to match either your last commit or your current working tree exactly — it's a genuinely independent third state that you can shape by hand, one hunk at a time. Seeing the same file exist simultaneously as two different blobs, one staged and one not, is the clearest possible proof that "staging" is a real, separate editing step and not just a formality before commit.
 
 #### YouTube Title
 > git add -p Splits One File Into Two Blobs — Watch It Happen in Verbose Mode
@@ -830,6 +914,10 @@ graph to watch because config doesn't touch the object store or refs.)
 **Target length:** 13–15 min
 **Commands covered:** git rebase -i HEAD~N, squash, fixup, reword, drop, reorder
 
+#### Why This Matters
+
+Every commit you've made in this series has been permanent the moment you made it — until now. Interactive rebase is git handing you an editable transcript of recent history: reorder lines, merge lines, delete lines, and git replays the result as if you'd committed it that way from the start. The one rule that makes this safe is the one this episode hammers on: only rewrite history nobody else has built on yet.
+
 #### YouTube Title
 > git rebase -i: Squash, Reorder, and Rewrite Commits — Watch the Graph Change
 
@@ -866,6 +954,10 @@ graph to watch because config doesn't touch the object store or refs.)
 **Target length:** 12–14 min
 **Commands covered:** git merge --squash, git merge -X ours, git merge -X theirs
 
+#### Why This Matters
+
+"Squash" is a single English word covering two git operations with opposite mechanics: rebase -i squash rewrites commits before you ever merge, while merge --squash discards a branch's commit boundaries entirely at merge time and never even creates a merge commit. Conflating the two is an easy mistake with real consequences for what your history looks like afterward, and this episode exists specifically to make the difference impossible to un-see.
+
 #### YouTube Title
 > git merge --squash Is Not the Same "Squash" as rebase -i — Here's the Graph Proof
 
@@ -879,7 +971,7 @@ graph to watch because config doesn't touch the object store or refs.)
 | 1:00 | Recap EP22 (interactive rebase squash): combines commits WITHIN a branch before it's shared |
 | 1:45 | New scenario: feature branch has 4 messy commits, ready to land on main |
 | 2:30 | `git merge --squash feature` from main — nothing is committed yet; all of feature's changes land in the index as ONE staged changeset |
-| 3:30 | `git status` — "Squash commit -- not updating HEAD"; verbose graph shows the Staged Changes box full, but no merge commit, no diamond |
+| 3:30 | `git status` — "Squash commit — not updating HEAD"; verbose graph shows the Staged Changes box full, but no merge commit, no diamond |
 | 4:15 | `git commit -m "Add feature"` — ONE new commit appears on main with ONE parent (main's previous tip) — feature's branch history is NOT preserved, no merge commit, no diamond at all |
 | 5:15 | Side-by-side contrast: `rebase -i` squash rewrites commits INSIDE feature and still produces a normal fast-forward or diamond merge afterward; `merge --squash` discards feature's commit boundaries entirely and never creates a merge commit |
 | 6:15 | When to use which: `rebase -i` squash to clean up your own branch commit-by-commit; `merge --squash` when you don't care about the branch's internal history at all — land one commit (this is what GitHub's "Squash and merge" PR button does) |
@@ -900,6 +992,10 @@ graph to watch because config doesn't touch the object store or refs.)
 **visigit mode:** normal
 **Target length:** 10–12 min
 **Commands covered:** git rebase --onto, git log --graph --all
+
+#### Why This Matters
+
+A plain git rebase always means "replay everything not already on the target," which only works if you want to keep every one of your branch's commits. --onto exists for the case that comes up constantly in real projects — your branch was built on the wrong foundation — by letting you name the exact exclusion boundary yourself instead of accepting whatever rebase would replay by default.
 
 #### YouTube Title
 > My Branch Is Based on the Wrong Branch — git rebase --onto Fixes It Without Starting Over
@@ -935,6 +1031,10 @@ graph to watch because config doesn't touch the object store or refs.)
 **Target length:** 10–12 min
 **Commands covered:** git tag, git tag -a, git tag -l, git push --tags, git describe
 
+#### Why This Matters
+
+A lightweight tag is structurally identical to a branch that never moves — just a named pointer at a commit. An annotated tag adds a whole extra object in between, with its own SHA, message, and signature support. Most people reach for lightweight tags out of habit; understanding what annotated tags actually buy you is what makes "always use -a for releases" a reasoned choice instead of a rule someone told you to follow.
+
 #### YouTube Title
 > git tag vs git tag -a: Two Different Graph Nodes for Two Different Objects
 
@@ -968,6 +1068,10 @@ graph to watch because config doesn't touch the object store or refs.)
 **visigit mode:** normal
 **Target length:** 12–14 min
 **Commands covered:** git bisect start, git bisect good, git bisect bad, git bisect reset, git bisect run, git bisect start --no-checkout
+
+#### Why This Matters
+
+A bug hiding somewhere in 500 commits sounds like a linear search problem, but git bisect turns it into a logarithmic one — roughly 9 tests instead of 500. The mechanism is nothing more exotic than checking out the midpoint commit and asking a yes/no question, repeated; seeing HEAD jump to that midpoint in the graph is what makes the halving concrete instead of theoretical.
 
 #### YouTube Title
 > git bisect: Binary Search Your Commit History to Find Exactly When a Bug Appeared
@@ -1007,6 +1111,10 @@ graph to watch because config doesn't touch the object store or refs.)
 **Target length:** 10–12 min
 **Commands covered:** git worktree add, git worktree list, git worktree remove, git worktree prune
 
+#### Why This Matters
+
+git's working tree and its object store are conceptually separate, and worktree is the feature that makes that separation visible: multiple working trees, each with their own checked-out branch, all sharing the exact same underlying object database. Once you've seen two directories on disk both reading from one .git, "I need to stash to switch branches" stops being a fact of life and becomes an avoidable workaround.
+
 #### YouTube Title
 > git worktree: Check Out Two Branches at the Same Time Without Stashing
 
@@ -1040,6 +1148,10 @@ graph to watch because config doesn't touch the object store or refs.)
 **visigit mode:** normal
 **Target length:** 11–13 min
 **Commands covered:** git push --force, git push --force-with-lease, git reflog (on remote)
+
+#### Why This Matters
+
+A normal push is git refusing to lose information — it rejects any update that isn't a fast-forward. --force is you explicitly telling git that's fine, replace whatever's there. The danger isn't the command itself, it's that "whatever's there" might be a teammate's work you never fetched, which is exactly what this episode makes visible before it becomes a real incident.
 
 #### YouTube Title
 > git push --force Is Destroying Your Team's History — Watch It Happen in the Graph
@@ -1081,6 +1193,10 @@ graph to watch because config doesn't touch the object store or refs.)
 **Target length:** 13–15 min
 **Commands covered:** git commit (step-by-step observation)
 
+#### Why This Matters
+
+Every git command you've run in this series has ultimately been manipulating exactly four object types — blob, tree, commit, tag — hashed and stored by content. This episode is the one where the abstraction finally opens up: "commit" stops being a verb you perform and becomes a noun you can point at, with a SHA, a tree, and a parent, exactly like every other object in the store.
+
 #### YouTube Title
 > Inside a git commit: blob, tree, commit Objects Explained with a Live Object Graph
 
@@ -1118,6 +1234,10 @@ graph to watch because config doesn't touch the object store or refs.)
 **Target length:** 12–14 min
 **Commands covered:** git submodule add, git subtree add
 
+#### Why This Matters
+
+Including one repository inside another sounds like one problem, but git offers two genuinely different solutions to it: a submodule stores a pointer (a gitlink) to another repo's commit, while a subtree merges that repo's actual files into yours as ordinary blobs. They look similar from the command line and are almost opposite at the object level, which is exactly why picking between them by habit instead of understanding causes so much team friction.
+
 #### YouTube Title
 > Submodules vs Subtrees: One Stores a Pointer, the Other Merges the Files — See the Difference
 
@@ -1154,6 +1274,10 @@ graph to watch because config doesn't touch the object store or refs.)
 **Target length:** 11–13 min
 **Commands covered:** git add, git commit (observing SHA reuse across commits)
 
+#### Why This Matters
+
+Content-addressable storage means identical content always hashes to the identical object, no matter how many commits or files reference it — git isn't storing a thousand copies of your README, it's storing one blob with a thousand pointers to it. This is the single idea that makes git's storage efficient at any scale, and it's also why a rename with no content change is nearly free.
+
 #### YouTube Title
 > Same File Content = Same SHA: How Git Avoids Storing Duplicates Across Commits
 
@@ -1188,6 +1312,10 @@ graph to watch because config doesn't touch the object store or refs.)
 **visigit mode:** verbose
 **Target length:** 12–14 min
 **Commands covered:** git add, git restore --staged, git rm --cached, git diff --staged
+
+#### Why This Matters
+
+"git add stages the file" undersells what actually happens: git computes a hash of your content and writes a real blob object to .git/objects immediately, before you've committed anything. The staging area isn't a to-do list of filenames, it's a list of blob SHAs — and once you've watched that blob appear in the object store the instant you run add, the difference between the working tree, the index, and HEAD stops being three abstract states and becomes three concrete sets of pointers you can inspect.
 
 #### YouTube Title
 > git add Creates a Blob Object Before You Even Commit — Watch It Appear in Verbose Mode
@@ -1226,6 +1354,10 @@ graph to watch because config doesn't touch the object store or refs.)
 **Target length:** 14–16 min
 **Commands covered:** git cat-file -p/-t/-s, git hash-object, ls .git/objects/, git gc, git verify-pack
 
+#### Why This Matters
+
+Every diagram this series has drawn is a picture of real files sitting in .git/objects, and this episode is where you stop trusting the picture and go read the bytes yourself. cat-file, hash-object, and a raw ls of the object directory are the ground truth that everything else in the series has been representing — seeing the same SHA in the terminal and in the diagram is the moment the abstraction fully collapses into "it's just files on disk."
+
 #### YouTube Title
 > What's Actually Inside .git/objects? Unpacking Blobs, Trees, and Commits with git cat-file
 
@@ -1263,6 +1395,10 @@ graph to watch because config doesn't touch the object store or refs.)
 **visigit mode:** normal
 **Target length:** 10–12 min
 **Commands covered:** git clone --depth N, git log, cat .git/shallow, git fetch --unshallow
+
+#### Why This Matters
+
+A shallow clone's oldest commit renders with no parent, exactly like a true repository root or an orphan branch — but it's neither; it's an honest gap where parent objects were deliberately never downloaded. Recognizing that "parentless in the graph" doesn't always mean "root of history" is what keeps a shallow clone from looking like data corruption, and understanding the boundary mechanism is what makes fetch --unshallow's "graph grows backward" moment make sense instead of feeling like magic.
 
 #### YouTube Title
 > Shallow Clones: How git clone --depth 1 Fakes a Repo With No History
@@ -1309,6 +1445,10 @@ walkthroughs.
 **Target length:** 8–10 min
 **Commands covered:** git config --global user.name/user.email, git config --list --show-origin, git config --global alias.X, git config --global core.editor, git config --global init.defaultBranch
 
+#### Why This Matters
+
+None of the shortcuts and identity settings in this episode touch the object graph at all — config lives entirely outside the DAG, in plain text files that just happen to control who git says you are and what your commands expand to. Understanding the three-scope precedence (system, global, local) is what stops "why does this repo use a different email" from being a mystery.
+
 #### YouTube Title
 > git config --global Explained: Identity, Aliases, and the Three Config Files That Run Everything
 
@@ -1344,6 +1484,10 @@ walkthroughs.
 **Target length:** 8–10 min
 **Commands covered:** .gitattributes, git config core.autocrlf, git add --renormalize, git diff --stat
 
+#### Why This Matters
+
+A line-ending mismatch produces a diff that touches every line of a file with a change that isn't really there, and core.autocrlf only patches over the symptom on your machine — .gitattributes is the fix that travels with the repository itself, because it's a committed file, not a personal setting. This episode exists because line-ending "diff bombs" are one of the most common sources of team friction, and the fix is almost always simpler than the confusion it causes.
+
 #### YouTube Title
 > "Every File Changed" But You Didn't Touch Anything: Line Endings, autocrlf, and .gitattributes
 
@@ -1374,6 +1518,10 @@ walkthroughs.
 **visigit mode:** normal (the graph is a constant backdrop across both rebases — the point is that it doesn't change, only your manual effort does)
 **Target length:** 8–9 min
 **Commands covered:** git config --global rerere.enabled true, git rerere diff, git rerere status, git rerere forget
+
+#### Why This Matters
+
+rerere is built on a simple observation: a conflict is defined by its content, not by when it happens, so if you've resolved this exact conflict before, git can just remember and reapply your resolution. This matters most for exactly the situation that makes rebase conflicts painful (EP12) — a long-lived branch rebased repeatedly against a moving main — where rerere turns "resolve this again" into "already handled."
 
 #### YouTube Title
 > git rerere: Stop Resolving the Same Rebase Conflict Every Single Time
@@ -1408,6 +1556,10 @@ walkthroughs.
 **Target length:** 10–11 min
 **Commands covered:** git config --global commit.gpgsign true, git config --global gpg.format ssh, git commit -S, git tag -s, git verify-commit, git verify-tag, git log --show-signature
 
+#### Why This Matters
+
+A commit's author field is plain text that anyone with write access can set to anything — signing is the mechanism that actually binds a commit's exact content to a cryptographic identity, checkable by anyone, forever. This episode matters more every year as supply-chain attacks target exactly this gap: an unsigned commit's authorship is a claim, a signed one's is a proof.
+
 #### YouTube Title
 > Anyone Can Put Your Name on a Commit — Signing Proves It Was Actually You
 
@@ -1441,6 +1593,10 @@ walkthroughs.
 **visigit mode:** verbose
 **Target length:** 10–12 min
 **Commands covered:** git clone --filter=blob:none, git sparse-checkout init --cone, git sparse-checkout set, git sparse-checkout list, git sparse-checkout add, git sparse-checkout disable
+
+#### Why This Matters
+
+Shallow clones (EP34) trim how much history you download; sparse checkout and partial clone trim something else entirely — which files exist on disk and which blobs ever get fetched — and the two axes are independent and combinable. This episode exists because as repos grow into monorepo territory, "clone everything" stops being a viable default, and understanding which knob controls which resource is what makes working in a huge repo feel normal instead of painful.
 
 #### YouTube Title
 > Sparse Checkout and Partial Clone: Work in a 50-Project Monorepo Without Downloading All 50
