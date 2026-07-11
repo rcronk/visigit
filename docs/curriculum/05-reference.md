@@ -61,7 +61,7 @@ None of the shortcuts and identity settings in this episode touch the object gra
 A line-ending mismatch produces a diff that touches every line of a file with a change that isn't really there, and core.autocrlf only patches over the symptom on your machine — .gitattributes is the fix that travels with the repository itself, because it's a committed file, not a personal setting. This episode exists because line-ending "diff bombs" are one of the most common sources of team friction, and the fix is almost always simpler than the confusion it causes.
 
 #### YouTube Title
-> Line Endings, autocrlf, and .gitattributes Explained
+> See Line Endings Fixed: autocrlf vs .gitattributes
 
 #### YouTube Description
 > Windows uses CRLF, Unix uses LF, and a repo with mixed line endings produces diffs that touch every line of every file for no reason. This episode covers core.autocrlf (a personal, local setting) and the better fix — a committed .gitattributes file that makes line-ending rules part of the repo itself — plus the one command that cleanly renormalizes an already-mixed repo.
@@ -96,7 +96,7 @@ A line-ending mismatch produces a diff that touches every line of a file with a 
 rerere is built on a simple observation: a conflict is defined by its content, not by when it happens, so if you've resolved this exact conflict before, git can just remember and reapply your resolution. This matters most for exactly the situation that makes rebase conflicts painful (EP12) — a long-lived branch rebased repeatedly against a moving main — where rerere turns "resolve this again" into "already handled."
 
 #### YouTube Title
-> git rerere: Stop Resolving the Same Conflict Twice
+> git rerere: Watch the Same Rebase Need Zero Effort
 
 #### YouTube Description
 > Rebasing a long-lived branch against a moving main means resolving the SAME conflict over and over. git rerere ("reuse recorded resolution") remembers how you resolved a conflict and auto-applies that resolution the next time it sees the identical conflict. This episode runs the same rebase twice — once manually, once with rerere doing the work — on an identical resulting graph, to make clear that rerere changes your effort, not your history.
@@ -133,7 +133,7 @@ rerere is built on a simple observation: a conflict is defined by its content, n
 A commit's author field is plain text that anyone with write access can set to anything — signing is the mechanism that actually binds a commit's exact content to a cryptographic identity, checkable by anyone, forever. This episode matters more every year as supply-chain attacks target exactly this gap: an unsigned commit's authorship is a claim, a signed one's is a proof.
 
 #### YouTube Title
-> Signing Git Commits and Tags: Proving It Was Really You
+> Signing Git Commits and Tags: See the Proof It's You
 
 #### YouTube Description
 > A commit's author field is just a text string; anyone can type your name and email into it. Signing binds a real cryptographic identity to a commit's exact content, permanently. This episode covers both the GPG path and the newer, simpler SSH-key signing path, opens a signed commit with git cat-file to show exactly where the signature lives inside the object, and covers signed tags too.
@@ -171,7 +171,7 @@ A commit's author field is plain text that anyone with write access can set to a
 Shallow clones (EP34) trim how much history you download; sparse checkout and partial clone trim something else entirely — which files exist on disk and which blobs ever get fetched — and the two axes are independent and combinable. This episode exists because as repos grow into monorepo territory, "clone everything" stops being a viable default, and understanding which knob controls which resource is what makes working in a huge repo feel normal instead of painful.
 
 #### YouTube Title
-> git sparse-checkout and Partial Clone for Monorepos
+> git sparse-checkout and Partial Clone: Watch It Shrink
 
 #### YouTube Description
 > Shallow clones (EP34) trim history depth. Sparse checkout and partial clone trim a completely different axis: which files exist on disk and which blobs ever get downloaded. This episode clones with --filter=blob:none so file contents fetch lazily, then narrows the working tree to one directory with sparse-checkout — while the full commit graph, for every project in the monorepo, stays completely intact and visible.

@@ -17,7 +17,7 @@
 Every commit you've made in this series has been permanent the moment you made it — until now. Interactive rebase is git handing you an editable transcript of recent history: reorder lines, merge lines, delete lines, and git replays the result as if you'd committed it that way from the start. The one rule that makes this safe is the one this episode hammers on: only rewrite history nobody else has built on yet.
 
 #### YouTube Title
-> git rebase -i: Squash, Reorder, and Rewrite Commits
+> git rebase -i: Watch Squash, Reorder, and Rewrite
 
 #### YouTube Description
 > Interactive rebase lets you rewrite your local commit history before sharing it: squash five "WIP" commits into one, fix a typo in a commit message, drop a commit entirely, or reorder them. This video walks through each operation in visigit so you can see exactly which commit nodes change SHA, which disappear, and which survive untouched.
@@ -57,7 +57,7 @@ Every commit you've made in this series has been permanent the moment you made i
 "Squash" is a single English word covering two git operations with opposite mechanics: rebase -i squash rewrites commits before you ever merge, while merge --squash discards a branch's commit boundaries entirely at merge time and never even creates a merge commit. Conflating the two is an easy mistake with real consequences for what your history looks like afterward, and this episode exists specifically to make the difference impossible to un-see.
 
 #### YouTube Title
-> git merge --squash vs rebase -i squash: Not the Same Thing
+> git merge --squash vs rebase -i squash: See the Difference
 
 #### YouTube Description
 > "Squash" means two completely different things depending on which command you say it to. Interactive rebase's squash rewrites commits INSIDE your branch before you merge. git merge --squash discards your branch's commit boundaries entirely at merge time and produces a single-parent commit with no merge commit at all — this is exactly what GitHub's "Squash and merge" button does. This video shows both, side by side, plus the -X ours/-X theirs merge strategy options for auto-resolving conflicts in one direction.
@@ -96,7 +96,7 @@ Every commit you've made in this series has been permanent the moment you made i
 A plain git rebase always means "replay everything not already on the target," which only works if you want to keep every one of your branch's commits. --onto exists for the case that comes up constantly in real projects — your branch was built on the wrong foundation — by letting you name the exact exclusion boundary yourself instead of accepting whatever rebase would replay by default.
 
 #### YouTube Title
-> git rebase --onto: Fix a Branch Built on the Wrong Base
+> git rebase --onto: Watch a Branch Move to the Right Base
 
 #### YouTube Description
 > Plain git rebase replays every commit not already on your target. But what if your branch was built on top of ANOTHER branch you now want to skip entirely? git rebase --onto lets you name the exact exclusion boundary yourself. This video builds a three-branch chain, then replants the tip branch directly onto main — skipping the middle branch's commits completely — and shows exactly which commits get new SHAs and which vanish from the new history.
@@ -134,7 +134,7 @@ A plain git rebase always means "replay everything not already on the target," w
 A lightweight tag is structurally identical to a branch that never moves — just a named pointer at a commit. An annotated tag adds a whole extra object in between, with its own SHA, message, and signature support. Most people reach for lightweight tags out of habit; understanding what annotated tags actually buy you is what makes "always use -a for releases" a reasoned choice instead of a rule someone told you to follow.
 
 #### YouTube Title
-> git tag vs git tag -a: Lightweight vs Annotated Tags
+> git tag vs git tag -a: See Lightweight vs Annotated
 
 #### YouTube Description
 > A lightweight tag is just a ref that points to a commit — exactly like a branch, except it doesn't move. An annotated tag is a full git object with its own SHA, author, and message, sitting between the tag ref and the commit. This video shows you both in visigit's graph so you can see exactly what you're creating and why annotated tags are preferred for releases.
@@ -172,7 +172,7 @@ A lightweight tag is structurally identical to a branch that never moves — jus
 A bug hiding somewhere in 500 commits sounds like a linear search problem, but git bisect turns it into a logarithmic one — roughly 9 tests instead of 500. The mechanism is nothing more exotic than checking out the midpoint commit and asking a yes/no question, repeated; seeing HEAD jump to that midpoint in the graph is what makes the halving concrete instead of theoretical.
 
 #### YouTube Title
-> git bisect: Binary Search Your History to Find a Bug
+> git bisect: Watch a Binary Search Find Your Bug
 
 #### YouTube Description
 > A bug exists now that didn't exist six months ago. git bisect performs a binary search through your commit history, halving the search space at each step. This video shows the process in visigit: watch HEAD move through the graph as bisect narrows in on the exact commit that introduced the bug — often in just 7-10 steps through hundreds of commits. We also cover the --no-checkout variant, which is the only mode where git actually writes a BISECT_HEAD ref instead of just moving HEAD.
@@ -214,7 +214,7 @@ A bug hiding somewhere in 500 commits sounds like a linear search problem, but g
 git's working tree and its object store are conceptually separate, and worktree is the feature that makes that separation visible: multiple working trees, each with their own checked-out branch, all sharing the exact same underlying object database. Once you've seen two directories on disk both reading from one .git, "I need to stash to switch branches" stops being a fact of life and becomes an avoidable workaround.
 
 #### YouTube Title
-> git worktree: Check Out Two Branches Without Stashing
+> git worktree: See Two Branches Checked Out at Once
 
 #### YouTube Description
 > Normally you can only have one branch checked out at a time. git worktree lets you check out additional branches into separate directories on disk — each with its own working tree. You can run a server on main while developing on a feature branch, without stashing or switching. This video uses visigit's branch mode to show all active worktrees alongside the branch topology.
@@ -252,7 +252,7 @@ git's working tree and its object store are conceptually separate, and worktree 
 A normal push is git refusing to lose information — it rejects any update that isn't a fast-forward. --force is you explicitly telling git that's fine, replace whatever's there. The danger isn't the command itself, it's that "whatever's there" might be a teammate's work you never fetched, which is exactly what this episode makes visible before it becomes a real incident.
 
 #### YouTube Title
-> git push --force: How It Destroys Your Team's History
+> git push --force: Watch It Destroy Your Team's History
 
 #### YouTube Description
 > Force push rewrites the remote ref to point at your local commit chain, discarding everything the remote had that you don't. If a teammate pushed after you last pulled, their commits are simply gone from the remote. This video makes the danger concrete by showing you exactly what the graph looks like before and after a force push — and why --force-with-lease is a safer alternative.
