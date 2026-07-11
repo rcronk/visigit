@@ -1536,7 +1536,7 @@ class TestLesson16Submodules:
         assert '"blob\n' in src, "Regular blob nodes must still appear alongside the gitlink node"
 
 
-# EP 16 (curriculum) — Force Push Is Destroying Someone's History: Here's the Proof
+# EP 28 (curriculum) — Force Push Is Destroying Someone's History: Here's the Proof
 # Lesson: visigit makes the danger concrete by showing local main and origin/main
 #         pointing to different commits (diverged state). After a force push,
 #         origin/main resets to the local commit; the displaced commit is orphaned.
@@ -1690,7 +1690,7 @@ class TestEP16ForcePush:
         )
 
 
-# EP 20 (curriculum) — All the Way Down: git cat-file, .git/objects, and Pack Files
+# EP 33 (curriculum) — All the Way Down: git cat-file, .git/objects, and Pack Files
 # Lesson: visigit's verbose graph SHA labels correspond directly to what git cat-file
 #         reports for each object. After git gc packs loose objects, GitPython reads
 #         the pack transparently and visigit continues to show the full object graph.
@@ -1788,4 +1788,502 @@ class TestLesson20PackFiles:
         )
         assert edge_in(src, tree_sha_2, blob_sha_before), (
             "Second commit's tree must also edge to the same shared blob node after gc"
+        )
+
+
+# ---------------------------------------------------------------------------
+# EP 03 (curriculum) — Ignoring and Cleaning
+# Lesson: .gitignore only prevents NEW files from being tracked -- it never untracks a
+#         file git already knows about.  git rm --cached moves a tracked file back into
+#         the Untracked box without touching the working copy; git clean deletes
+#         untracked files from disk.
+# ---------------------------------------------------------------------------
+
+
+class TestLesson03IgnoringAndCleaning:
+    def test_gitignored_file_does_not_appear_untracked(self, repo: RepoTools) -> None:
+        """A file matched by .gitignore never enters the Untracked box."""
+        repo.write("app.log", "log data")
+        repo.write(".gitignore", "*.log\n")
+
+        dg, _, _ = _build(str(repo.path), mode="verbose")
+        src = dg.source
+
+        assert not node_in(src, "untracked|app.log"), (
+            "A file matched by .gitignore must not appear in the Untracked box"
+        )
+        assert node_in(src, "untracked|.gitignore"), (
+            ".gitignore itself is untracked until it is added/committed"
+        )
+
+    def test_gitignore_does_not_untrack_already_committed_file(self, repo: RepoTools) -> None:
+        """Adding an already-tracked file to .gitignore has no retroactive effect."""
+        repo.write("secrets.env", "API_KEY=x")
+        repo.commit("add secrets")
+        repo.write(".gitignore", "secrets.env\n")
+
+        dg, _, _ = _build(str(repo.path), mode="verbose")
+        src = dg.source
+
+        assert not node_in(src, "untracked|secrets.env"), (
+            "A tracked file listed in .gitignore must stay tracked, not become untracked"
+        )
+
+    def test_rm_cached_moves_tracked_file_to_untracked_box(self, repo: RepoTools) -> None:
+        """git rm --cached untracks a file in the index while leaving it on disk."""
+        repo.write("secrets.env", "API_KEY=x")
+        repo.commit("add secrets")
+        repo._run(["git", "rm", "--cached", "secrets.env"])
+
+        dg, _, _ = _build(str(repo.path), mode="verbose")
+        src = dg.source
+
+        assert node_in(src, "untracked|secrets.env"), (
+            "git rm --cached must move the file into the Untracked box"
+        )
+        assert (repo.path / "secrets.env").exists(), "git rm --cached must leave the file on disk"
+
+    def test_clean_fd_empties_untracked_box(self, repo: RepoTools) -> None:
+        """git clean -fd deletes untracked files from disk and from the graph."""
+        repo.write("junk.tmp", "scratch")
+        dg_before, _, _ = _build(str(repo.path), mode="verbose")
+        assert node_in(dg_before.source, "untracked|junk.tmp")
+
+        repo._run(["git", "clean", "-fd"])
+
+        dg_after, _, _ = _build(str(repo.path), mode="verbose")
+        src_after = dg_after.source
+        assert not node_in(src_after, "untracked|junk.tmp"), (
+            "git clean -fd must remove the deleted file's node from the Untracked box"
+        )
+        assert not (repo.path / "junk.tmp").exists()
+
+
+# ---------------------------------------------------------------------------
+# EP 10 (curriculum) — Orphan Branches
+# Lesson: git checkout --orphan starts a branch with no history at all; its first
+#         commit renders with zero parent edges, and git merge-base reports no common
+#         ancestor with any other branch in the repo.
+# ---------------------------------------------------------------------------
+
+
+class TestLesson10OrphanBranches:
+    def _make_orphan_commit(self, repo: RepoTools) -> tuple[str, str]:
+        repo.write("a.txt")
+        main_sha = repo.commit("main commit")
+        repo._run(["git", "checkout", "--orphan", "gh-pages"])
+        repo._run(["git", "rm", "-rf", "."])
+        repo.write("index.html", "<html>hi</html>")
+        orphan_sha = repo.commit("Initial gh-pages commit")
+        return main_sha, orphan_sha
+
+    def test_orphan_commit_has_no_parent_edges(self, repo: RepoTools) -> None:
+        main_sha, orphan_sha = self._make_orphan_commit(repo)
+
+        dg, _, _ = _build(str(repo.path))
+        src = dg.source
+
+        assert node_in(src, orphan_sha)
+        assert not edge_in(src, orphan_sha, main_sha), (
+            "An orphan branch's first commit must not have a parent edge to main's tip"
+        )
+        assert f'"{orphan_sha}" ->' not in src, (
+            "Orphan commit must have zero outgoing (parent) edges"
+        )
+
+    def test_orphan_and_main_share_no_merge_base(self, repo: RepoTools) -> None:
+        self._make_orphan_commit(repo)
+
+        result = subprocess.run(
+            ["git", "merge-base", "main", "gh-pages"],
+            cwd=str(repo.path),
+            capture_output=True,
+            text=True,
+        )
+        assert result.returncode != 0, (
+            "git merge-base must fail -- an orphan branch shares no history with main"
+        )
+
+    def test_branch_mode_shows_both_disconnected_branches(self, repo: RepoTools) -> None:
+        self._make_orphan_commit(repo)
+
+        dg, _, _ = _build(str(repo.path), mode="branch")
+        src = dg.source
+
+        assert node_in(src, "main")
+        assert node_in(src, "gh-pages")
+
+
+# ---------------------------------------------------------------------------
+# EP 12 (curriculum) — Rebase Conflicts
+# Lesson: a conflicting rebase leaves ORIG_HEAD pointing at the pre-rebase branch tip
+#         (git's safety net, same mechanism as EP19) while a rebase state directory
+#         sits under .git/.  Resolving and continuing produces a new-SHA commit.
+# ---------------------------------------------------------------------------
+
+
+class TestLesson12RebaseConflicts:
+    def _build_conflicting_rebase(self, repo: RepoTools) -> tuple[str, str]:
+        repo.write("file.txt", "base")
+        repo.commit("base")
+        repo.checkout("feature", new=True)
+        repo.write("file.txt", "feature version")
+        feature_sha = repo.commit("feature change")
+        repo.checkout("main")
+        repo.write("file.txt", "main version")
+        main_sha = repo.commit("main change")
+
+        try:
+            repo._run(["git", "rebase", "main", "feature"])
+        except subprocess.CalledProcessError:
+            pass  # conflict expected
+        return main_sha, feature_sha
+
+    def test_conflict_leaves_orig_head_pointing_at_pre_rebase_tip(self, repo: RepoTools) -> None:
+        _, feature_sha = self._build_conflicting_rebase(repo)
+
+        assert (repo.path / ".git" / "rebase-apply").exists() or (
+            repo.path / ".git" / "rebase-merge"
+        ).exists(), "A conflicting rebase must leave an in-progress rebase state directory"
+
+        dg, _, _ = _build(str(repo.path))
+        src = dg.source
+
+        assert node_in(src, "ORIG_HEAD"), (
+            "ORIG_HEAD must appear pointing at the pre-rebase branch tip during a conflict"
+        )
+        assert edge_in(src, "ORIG_HEAD", feature_sha), (
+            "ORIG_HEAD must point at feature's pre-rebase tip commit"
+        )
+
+    def test_continue_after_resolving_produces_new_sha_commit(self, repo: RepoTools) -> None:
+        _, feature_sha = self._build_conflicting_rebase(repo)
+
+        repo.write("file.txt", "resolved version")
+        repo._run(["git", "add", "file.txt"])
+        repo._run(["git", "rebase", "--continue"])
+
+        new_sha = repo.rev_parse("feature")
+        assert new_sha != feature_sha, (
+            "The replayed commit must have a new SHA, not the original feature SHA"
+        )
+        assert not (repo.path / ".git" / "rebase-merge").exists()
+        assert not (repo.path / ".git" / "rebase-apply").exists()
+
+        dg, _, _ = _build(str(repo.path))
+        src = dg.source
+        assert node_in(src, new_sha)
+
+
+# ---------------------------------------------------------------------------
+# EP 15 (curriculum) — One Remote Isn't Enough: origin, upstream, and the Fork Workflow
+# Lesson: a fork workflow has TWO independent sets of remote-tracking refs
+#         (refs/remotes/origin/* and refs/remotes/upstream/*); fetching one never
+#         touches the other.
+# ---------------------------------------------------------------------------
+
+
+class TestLesson15ForkWorkflow:
+    def _setup_upstream_and_origin(self, repo: RepoTools) -> str:
+        upstream_path = repo.path.parent / (repo.path.name + "_upstream.git")
+        origin_path = repo.path.parent / (repo.path.name + "_origin.git")
+        for remote_path in (upstream_path, origin_path):
+            subprocess.check_call(
+                ["git", "init", "--bare", "-b", "main", str(remote_path)],
+                stdout=subprocess.DEVNULL,
+                stderr=subprocess.DEVNULL,
+            )
+        repo.write("a.txt")
+        repo.commit("initial")
+        repo._run(["git", "remote", "add", "origin", str(origin_path)])
+        repo._run(["git", "remote", "add", "upstream", str(upstream_path)])
+        repo._run(["git", "push", "-u", "origin", "main"])
+        repo._run(["git", "push", "upstream", "main"])
+        return str(upstream_path)
+
+    def test_both_remote_tracking_sets_appear(self, repo: RepoTools) -> None:
+        self._setup_upstream_and_origin(repo)
+
+        dg, _, _ = _build(str(repo.path))
+        src = dg.source
+
+        assert node_in(src, "refs/remotes/origin/main")
+        assert node_in(src, "refs/remotes/upstream/main")
+
+    def test_upstream_advances_independently_of_origin(self, repo: RepoTools) -> None:
+        upstream_path = self._setup_upstream_and_origin(repo)
+
+        # A teammate pushes directly to the real project (upstream) via a second clone.
+        clone_path = repo.path.parent / (repo.path.name + "_teammate")
+        subprocess.check_call(
+            ["git", "clone", upstream_path, str(clone_path)],
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
+        )
+        subprocess.check_call(
+            ["git", "config", "user.email", "tm@test"], cwd=clone_path, stderr=subprocess.DEVNULL
+        )
+        subprocess.check_call(
+            ["git", "config", "user.name", "Teammate"], cwd=clone_path, stderr=subprocess.DEVNULL
+        )
+        (clone_path / "upstream_work.txt").write_text("new", encoding="utf-8")
+        subprocess.check_call(["git", "add", "-A"], cwd=clone_path, stderr=subprocess.DEVNULL)
+        subprocess.check_call(
+            ["git", "commit", "-m", "upstream work"], cwd=clone_path, stderr=subprocess.DEVNULL
+        )
+        subprocess.check_call(
+            ["git", "push", "origin", "main"],
+            cwd=clone_path,
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
+        )
+
+        repo._run(["git", "fetch", "upstream"])
+
+        upstream_sha = repo._run(["git", "rev-parse", "upstream/main"])
+        origin_sha = repo._run(["git", "rev-parse", "origin/main"])
+        assert upstream_sha != origin_sha, (
+            "upstream/main must advance independently of origin/main after fetch upstream"
+        )
+
+        dg, _, _ = _build(str(repo.path))
+        src = dg.source
+        assert edge_in(src, "refs/remotes/upstream/main", upstream_sha)
+        assert edge_in(src, "refs/remotes/origin/main", origin_sha)
+
+
+# ---------------------------------------------------------------------------
+# EP 21 (curriculum) — Partial Commits: What git add -p Actually Stages
+# Lesson: partially staging a file leaves the SAME path in both the Staged and
+#         Unstaged boxes with two DIFFERENT blob SHAs.  This reproduces the end-state
+#         `git add -p` produces by staging an intermediate version directly, since
+#         `-p`'s interactive hunk prompt isn't practical to drive from a
+#         non-interactive test.
+# ---------------------------------------------------------------------------
+
+
+class TestLesson21PartialCommits:
+    def test_same_path_appears_staged_and_unstaged_with_different_shas(
+        self, repo: RepoTools
+    ) -> None:
+        repo.write("app.py", "def run():\n    pass\n")
+        repo.commit("initial")
+
+        # Stage the "real fix" only.
+        repo.write("app.py", "def run():\n    return fix()\n")
+        repo._run(["git", "add", "app.py"])
+        staged_sha = repo._run(["git", "rev-parse", ":app.py"])
+
+        # Further, unstaged change on top: an unrelated debug print.
+        repo.write("app.py", "def run():\n    return fix()\nprint('debug')\n")
+        unstaged_sha = repo._run(["git", "hash-object", "app.py"])
+
+        assert staged_sha != unstaged_sha
+
+        dg, _, _ = _build(str(repo.path), mode="verbose")
+        src = dg.source
+
+        assert node_in(src, "staged|app.py")
+        assert node_in(src, "unstaged|app.py")
+        # The Staged/Unstaged file nodes carry the blob SHA in their label (truncated
+        # to visigit's default hash length), not as a standalone full-SHA node.
+        assert staged_sha[:5] in src, "Staged Changes label must show the staged blob's SHA"
+        assert unstaged_sha[:5] in src, "Unstaged Changes label must show the unstaged blob's SHA"
+
+    def test_commit_consumes_only_staged_blob_leaving_unstaged_hunk_pending(
+        self, repo: RepoTools
+    ) -> None:
+        repo.write("app.py", "def run():\n    pass\n")
+        repo.commit("initial")
+
+        repo.write("app.py", "def run():\n    return fix()\n")
+        repo._run(["git", "add", "app.py"])
+        repo.write("app.py", "def run():\n    return fix()\nprint('debug')\n")
+        unstaged_sha = repo._run(["git", "hash-object", "app.py"])
+
+        # Commit directly (not via repo.commit(), which would `git add -A` and
+        # re-stage the debug-print hunk, defeating the point of this lesson).
+        repo._run(["git", "commit", "-m", "fix: real bug"])
+        new_sha = repo.rev_parse("HEAD")
+
+        dg, _, _ = _build(str(repo.path), mode="verbose")
+        src = dg.source
+
+        assert not node_in(src, "Staged Changes"), "Committing must clear the Staged Changes box"
+        assert node_in(src, "unstaged|app.py"), (
+            "The leftover debug-print hunk must remain in Unstaged Changes after the commit"
+        )
+        assert unstaged_sha[:5] in src, "Unstaged Changes label must show the leftover blob's SHA"
+        assert node_in(src, new_sha)
+
+
+# ---------------------------------------------------------------------------
+# EP 23 (curriculum) — Two Kinds of Squash: merge --squash vs rebase -i squash
+# Lesson: git merge --squash stages a combined changeset without creating any commit;
+#         committing it afterward produces a SINGLE-parent commit -- no merge commit,
+#         no diamond -- unlike a --no-ff merge (EP05/EP11).
+# ---------------------------------------------------------------------------
+
+
+class TestLesson23MergeSquash:
+    def test_merge_squash_stages_without_committing(self, repo: RepoTools) -> None:
+        repo.write("a.txt")
+        repo.commit("base")
+        repo.checkout("feature", new=True)
+        repo.write("f1.txt")
+        repo.commit("feature commit 1")
+        repo.write("f2.txt")
+        repo.commit("feature commit 2")
+        repo.checkout("main")
+        main_tip_before = repo.rev_parse("HEAD")
+
+        repo._run(["git", "merge", "--squash", "feature"])
+
+        dg, _, _ = _build(str(repo.path), mode="verbose")
+        src = dg.source
+
+        assert node_in(src, "Staged Changes"), (
+            "merge --squash must stage feature's combined changes without creating a commit"
+        )
+        assert repo.rev_parse("HEAD") == main_tip_before, (
+            "merge --squash must not move HEAD or create a commit by itself"
+        )
+
+    def test_squash_commit_has_single_parent_no_diamond(self, repo: RepoTools) -> None:
+        repo.write("a.txt")
+        base_sha = repo.commit("base")
+        repo.checkout("feature", new=True)
+        repo.write("f1.txt")
+        repo.commit("feature commit 1")
+        repo.write("f2.txt")
+        feature_sha = repo.commit("feature commit 2")
+        repo.checkout("main")
+        repo._run(["git", "merge", "--squash", "feature"])
+        squash_sha = repo.commit("Add feature")
+
+        dg, _, _ = _build(str(repo.path))
+        src = dg.source
+
+        assert node_in(src, squash_sha)
+        assert edge_in(src, squash_sha, base_sha), (
+            "The squash commit's only parent must be main's previous tip"
+        )
+        assert not edge_in(src, squash_sha, feature_sha), (
+            "merge --squash must not create a second parent edge -- no diamond"
+        )
+
+
+# ---------------------------------------------------------------------------
+# EP 24 (curriculum) — Moving a Branch's Base: git rebase --onto
+# Lesson: `git rebase --onto main feature topic` replants topic's commits directly on
+#         main, skipping feature's commits entirely; ORIG_HEAD preserves topic's
+#         pre-rebase tip.
+# ---------------------------------------------------------------------------
+
+
+class TestLesson24RebaseOnto:
+    def _build_three_branch_chain(self, repo: RepoTools) -> tuple[str, str, str]:
+        repo.write("a.txt")
+        main_sha = repo.commit("main base")
+        repo.checkout("feature", new=True)
+        repo.write("f1.txt")
+        feature_sha = repo.commit("feature commit")
+        repo.checkout("topic", new=True)
+        repo.write("t1.txt")
+        topic_sha = repo.commit("topic commit")
+        return main_sha, feature_sha, topic_sha
+
+    def test_onto_skips_excluded_branch_commits(self, repo: RepoTools) -> None:
+        main_sha, feature_sha, topic_sha = self._build_three_branch_chain(repo)
+
+        repo._run(["git", "rebase", "--onto", "main", "feature", "topic"])
+        new_topic_tip = repo.rev_parse("topic")
+
+        dg, _, _ = _build(str(repo.path))
+        src = dg.source
+
+        assert new_topic_tip != topic_sha, "The replayed topic commit must have a new SHA"
+        assert node_in(src, new_topic_tip)
+        assert edge_in(src, new_topic_tip, main_sha), (
+            "The replayed topic commit's parent must be main's tip directly, skipping feature"
+        )
+        assert not edge_in(src, new_topic_tip, feature_sha), (
+            "The replayed topic commit must not descend from feature's excluded commit"
+        )
+
+    def test_orig_head_preserves_pre_onto_topic_tip(self, repo: RepoTools) -> None:
+        _, _, topic_sha = self._build_three_branch_chain(repo)
+
+        repo._run(["git", "rebase", "--onto", "main", "feature", "topic"])
+
+        dg, _, _ = _build(str(repo.path))
+        src = dg.source
+
+        assert node_in(src, "ORIG_HEAD")
+        assert edge_in(src, "ORIG_HEAD", topic_sha), (
+            "ORIG_HEAD must preserve topic's pre-rebase --onto tip"
+        )
+
+
+# ---------------------------------------------------------------------------
+# EP 34 (curriculum) — Thin Slices: Shallow Clones and Grafted History
+# Lesson: a shallow clone's boundary commit renders with zero parent edges even though
+#         it isn't really the repo's root; `git fetch --unshallow` retroactively grows
+#         the graph backward past that boundary.
+# ---------------------------------------------------------------------------
+
+
+class TestLesson34ShallowClones:
+    def _build_history(self, repo: RepoTools) -> list[str]:
+        shas = []
+        for i in range(5):
+            repo.write(f"f{i}.txt")
+            shas.append(repo.commit(f"commit {i}"))
+        return shas
+
+    def _shallow_clone(self, repo: RepoTools):
+        """Clone with --depth 1, forcing real shallow-clone semantics.
+
+        Plain local-path clones ignore --depth ("warning: --depth is ignored in
+        local clones; use file:// instead") and hardlink the full object store, so
+        this must go through the file:// transport to actually produce .git/shallow.
+        """
+        clone_path = repo.path.parent / (repo.path.name + "_shallow")
+        subprocess.check_call(
+            ["git", "clone", "--depth", "1", f"file://{repo.path}", str(clone_path)],
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
+        )
+        return clone_path
+
+    def test_shallow_clone_boundary_commit_has_no_parent_edge(self, repo: RepoTools) -> None:
+        shas = self._build_history(repo)
+        clone_path = self._shallow_clone(repo)
+        assert (clone_path / ".git" / "shallow").exists()
+
+        dg, _, _ = _build(str(clone_path))
+        src = dg.source
+        tip_sha = shas[-1]
+
+        assert node_in(src, tip_sha)
+        assert f'"{tip_sha}" ->' not in src, (
+            "A shallow clone's boundary commit must render with no parent edges"
+        )
+
+    def test_fetch_unshallow_restores_parent_edge(self, repo: RepoTools) -> None:
+        shas = self._build_history(repo)
+        clone_path = self._shallow_clone(repo)
+
+        subprocess.check_call(
+            ["git", "fetch", "--unshallow"],
+            cwd=str(clone_path),
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
+        )
+        assert not (clone_path / ".git" / "shallow").exists()
+
+        dg, _, _ = _build(str(clone_path))
+        src = dg.source
+        assert edge_in(src, shas[-1], shas[-2]), (
+            "After fetch --unshallow, the previously-truncated parent edge must appear"
         )

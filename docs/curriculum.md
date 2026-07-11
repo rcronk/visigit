@@ -2,8 +2,10 @@
 
 **Series tagline:** *Stop memorizing commands. Start seeing what they do.*
 
-Every episode runs `visigit --monitor` in one terminal while git commands run in another.
+Almost every episode runs `visigit --monitor` in one terminal while git commands run in another.
 The diagram updates live. Viewers watch the DAG change rather than guessing what happened.
+(The one exception is EP35, a terminal-only reference episode on `git config` — there's no
+graph to watch because config doesn't touch the object store or refs.)
 
 ---
 
@@ -13,29 +15,43 @@ The diagram updates live. Viewers watch the DAG change rather than guessing what
 |---|------|-------|------|----------|
 | 01 | Setup | See Your Git: Setting Up a Live Repository Visualizer | all | install |
 | 02 | Beginner | Your First Repository: Watching the Graph Appear | normal | init, add, commit |
-| 03 | Beginner | Branches Aren't Copies: What Branching Really Does | normal | branch, checkout -b, switch |
-| 04 | Beginner | The Merge Diamond: Fast-Forward vs No-Fast-Forward | normal + branch | merge, merge --no-ff |
-| 05 | Beginner | Resolving Merge Conflicts: What MERGE_HEAD Shows You | normal | merge (conflict), add, commit, merge --abort |
-| 06 | Beginner | Reset Demystified: Three Pointer Moves, Not Three Commands | normal | reset --soft/--mixed/--hard |
-| 07 | Beginner | Undo Without Fear: revert vs amend (vs reset) | normal | revert, commit --amend |
-| 08 | Beginner | Don't Panic: Detached HEAD Explained and Escaped | normal | checkout SHA, checkout -b |
-| 09 | Intermediate | Merge vs Rebase: Same Code, Completely Different History | normal | merge, rebase |
-| 10 | Intermediate | origin/main Is Not main: Remote Tracking Branches | normal | remote, fetch, pull, push |
-| 11 | Intermediate | Two Repos, One Screen: Watching local and origin Together | all | clone, push, fetch, pull (bare origin) |
-| 12 | Intermediate | Stash Is a Secret Commit: What git stash Actually Creates | verbose | stash, stash pop, stash list |
-| 13 | Intermediate | Cherry-Pick: Copying a Commit (and Why the SHA Changes) | normal | cherry-pick |
-| 14 | Intermediate | You Didn't Lose It: Finding Commits with git reflog | normal | reflog, reset --hard, checkout SHA |
-| 15 | Intermediate | Git's Safety Nets: ORIG_HEAD, FETCH_HEAD, and Friends | normal | (observe pseudo-refs) |
-| 16 | Advanced | Rewrite History: Interactive Rebase, Squash, and Fixup | normal | rebase -i |
-| 17 | Advanced | Tags Are Just Pointers (Until They Aren't): Annotated vs Lightweight | normal | tag, tag -a |
-| 18 | Advanced | Binary Search Your Bug: git bisect and the Commit Graph | normal | bisect start/good/bad/reset |
-| 19 | Advanced | Two Branches, One Checkout: git worktree Explained | branch | worktree add/list/remove |
-| 20 | Advanced | Force Push Is Destroying Someone's History: Here's the Proof | normal | push --force, push --force-with-lease |
-| 21 | Internals | Inside a Commit: blob, tree, commit — Git's Four Object Types | verbose | commit (step through) |
-| 22 | Internals | Submodules vs Subtrees: Pointer or Merged Files? | verbose | submodule add, subtree add |
-| 23 | Internals | Same File, Same SHA: How Git Never Stores the Same Content Twice | verbose | add, commit (cross-commit reuse) |
-| 24 | Internals | The Staging Area Exposed: What git add Actually Does to the Object Store | verbose | add, restore --staged, rm --cached |
-| 25 | Internals | All the Way Down: git cat-file, .git/objects, and Pack Files | verbose + terminal | cat-file -p/-t, ls .git/objects/ |
+| 03 | Beginner | Ignoring and Cleaning: What .gitignore and git clean Actually Touch | verbose | gitignore, check-ignore, rm --cached, clean |
+| 04 | Beginner | Branches Aren't Copies: What Branching Really Does | normal | branch, checkout -b, switch |
+| 05 | Beginner | The Merge Diamond: Fast-Forward vs No-Fast-Forward | normal + branch | merge, merge --no-ff |
+| 06 | Beginner | Resolving Merge Conflicts: What MERGE_HEAD Shows You | normal | merge (conflict), add, commit, merge --abort |
+| 07 | Beginner | Reset Demystified: Three Pointer Moves, Not Three Commands | normal | reset --soft/--mixed/--hard |
+| 08 | Beginner | Undo Without Fear: revert vs amend (vs reset) | normal | revert, commit --amend |
+| 09 | Beginner | Don't Panic: Detached HEAD Explained and Escaped | normal | checkout SHA, checkout -b |
+| 10 | Beginner | Orphan Branches: Commits With No Parents, On Purpose | normal + branch | checkout --orphan |
+| 11 | Intermediate | Merge vs Rebase: Same Code, Completely Different History | normal | merge, rebase |
+| 12 | Intermediate | Rebase Conflicts: --continue, --skip, --abort | normal | rebase (conflict), rebase --continue/--skip/--abort |
+| 13 | Intermediate | origin/main Is Not main: Remote Tracking Branches | normal | remote, fetch, pull, push |
+| 14 | Intermediate | Two Repos, One Screen: Watching local and origin Together | all | clone, push, fetch, pull (bare origin) |
+| 15 | Intermediate | One Remote Isn't Enough: origin, upstream, and the Fork Workflow | normal | remote add upstream, fetch upstream, merge/rebase |
+| 16 | Intermediate | Stash Is a Secret Commit: What git stash Actually Creates | verbose | stash, stash pop, stash list |
+| 17 | Intermediate | Cherry-Pick: Copying a Commit (and Why the SHA Changes) | normal | cherry-pick |
+| 18 | Intermediate | You Didn't Lose It: Finding Commits with git reflog | normal | reflog, reset --hard, checkout SHA |
+| 19 | Intermediate | Git's Safety Nets: ORIG_HEAD, FETCH_HEAD, and Friends | normal | (observe pseudo-refs) |
+| 20 | Intermediate | Finding the Needle: git blame, log -S, and log --grep | normal | log --grep/-S/-G, blame |
+| 21 | Intermediate | Partial Commits: What git add -p Actually Stages | verbose | add -p, restore -p |
+| 22 | Advanced | Rewrite History: Interactive Rebase, Squash, and Fixup | normal | rebase -i |
+| 23 | Advanced | Two Kinds of Squash: merge --squash vs rebase -i squash | normal + verbose | merge --squash, merge -X ours/theirs |
+| 24 | Advanced | Moving a Branch's Base: git rebase --onto | normal | rebase --onto |
+| 25 | Advanced | Tags Are Just Pointers (Until They Aren't): Annotated vs Lightweight | normal | tag, tag -a |
+| 26 | Advanced | Binary Search Your Bug: git bisect and the Commit Graph | normal | bisect start/good/bad/reset, --no-checkout |
+| 27 | Advanced | Two Branches, One Checkout: git worktree Explained | branch | worktree add/list/remove |
+| 28 | Advanced | Force Push Is Destroying Someone's History: Here's the Proof | normal | push --force, push --force-with-lease |
+| 29 | Internals | Inside a Commit: blob, tree, commit — Git's Four Object Types | verbose | commit (step through) |
+| 30 | Internals | Submodules vs Subtrees: Pointer or Merged Files? | verbose | submodule add, subtree add |
+| 31 | Internals | Same File, Same SHA: How Git Never Stores the Same Content Twice | verbose | add, commit (cross-commit reuse) |
+| 32 | Internals | The Staging Area Exposed: What git add Actually Does to the Object Store | verbose | add, restore --staged, rm --cached |
+| 33 | Internals | All the Way Down: git cat-file, .git/objects, and Pack Files | verbose + terminal | cat-file -p/-t, ls .git/objects/ |
+| 34 | Internals | Thin Slices: Shallow Clones and Grafted History | normal | clone --depth, fetch --unshallow |
+| 35 | Reference | Making Git Yours: git config, Aliases, and .gitconfig | terminal | config --global, alias |
+| 36 | Reference | Line Endings and .gitattributes: Taming Cross-Platform Diffs | verbose | gitattributes, autocrlf, add --renormalize |
+| 37 | Reference | Never Resolve the Same Conflict Twice: git rerere | normal | rerere.enabled, rerere diff/status |
+| 38 | Reference | Proving It Was You: Signing Commits and Tags | verbose | commit -S, tag -s, verify-commit |
+| 39 | Reference | Big Repos, Small Checkouts: Sparse Checkout and Partial Clone | verbose | clone --filter, sparse-checkout |
 
 ---
 
@@ -45,8 +61,8 @@ The diagram updates live. Viewers watch the DAG change rather than guessing what
 
 ### EP 01 — Setup — See Your Git: Setting Up a Live Repository Visualizer
 
-**visigit mode:** demo of all three  
-**Target length:** 5–8 min  
+**visigit mode:** demo of all three
+**Target length:** 5–8 min
 **Commands covered:** git init, pip install
 
 #### YouTube Title
@@ -80,8 +96,8 @@ The diagram updates live. Viewers watch the DAG change rather than guessing what
 
 ### EP 02 — Beginner — Your First Repository: Watching the Graph Appear
 
-**visigit mode:** normal  
-**Target length:** 10–12 min  
+**visigit mode:** normal
+**Target length:** 10–12 min
 **Commands covered:** git init, git status, git add, git commit, git log
 
 #### YouTube Title
@@ -114,10 +130,48 @@ The diagram updates live. Viewers watch the DAG change rather than guessing what
 
 ---
 
-### EP 03 — Beginner — Branches Aren't Copies: What Branching Really Does
+### EP 03 — Beginner — Ignoring and Cleaning: What .gitignore and git clean Actually Touch
 
-**visigit mode:** normal  
-**Target length:** 10–13 min  
+**visigit mode:** verbose
+**Target length:** 9–11 min
+**Commands covered:** git status, .gitignore, git check-ignore, git rm --cached, git clean -n/-fd, git status --ignored
+
+#### YouTube Title
+> .gitignore Doesn't Untrack Files — Here's What It Actually Does (and What git clean Does Instead)
+
+#### YouTube Description
+> Everyone's first .gitignore mistake is the same: adding a file to it and expecting git to stop tracking it. .gitignore only stops NEW files from being tracked — it has zero effect on files git already knows about. This video uses visigit's verbose-mode Untracked box to show exactly what .gitignore prevents, what git rm --cached does to actually untrack a file, and what git clean deletes that .gitignore doesn't.
+
+#### Outline
+| Time | Section |
+|------|---------|
+| 0:00 | Hook: "why is this file still following me around?" |
+| 1:00 | Start `visigit --mode verbose --monitor` |
+| 1:30 | Create build noise: `app.log`, `__pycache__/cache.pyc`, `secrets.env` |
+| 2:15 | `git status` — a wall of untracked files; the Untracked box mirrors every one of them |
+| 3:00 | `echo -e "*.log\n__pycache__/" > .gitignore` |
+| 3:45 | `git status` again — the ignored files vanish from the untracked list; the Untracked box shrinks to just `secrets.env` and `.gitignore` |
+| 4:30 | `git check-ignore -v build/app.log` — shows exactly which .gitignore line matched, and from which file |
+| 5:15 | The trap: `secrets.env` was committed BEFORE it was added to .gitignore — adding it now does nothing, it's still tracked |
+| 6:00 | `git rm --cached secrets.env` — removes it from the index only; the file stays on disk and reappears in the Untracked box |
+| 6:45 | Add `secrets.env` to `.gitignore` now that it's untracked — this time it actually sticks |
+| 7:30 | `git clean -n` — dry run, lists exactly what would be deleted (ignored files are NOT included by default) |
+| 8:15 | `git clean -fd` — deletes every untracked file and directory; the Untracked box empties completely |
+| 9:00 | `git status --ignored` — see ignored files explicitly, since normal `git status` hides them |
+| 9:45 | Recap: .gitignore prevents future tracking, `rm --cached` stops tracking a file that's already tracked, `clean` deletes untracked files from disk — three separate jobs |
+
+#### Key Visual Moments
+- The Untracked box (verbose mode) shrinking the instant `.gitignore` takes effect
+- A previously-tracked file staying fully tracked — still reachable through the committed tree — even after being listed in `.gitignore`, until `git rm --cached` runs
+- `git rm --cached` moving a file's node out of the tracked-tree path and into the Untracked box without touching the working copy on disk
+- `git clean -fd` wiping the entire Untracked box in one shot
+
+---
+
+### EP 04 — Beginner — Branches Aren't Copies: What Branching Really Does
+
+**visigit mode:** normal
+**Target length:** 10–13 min
 **Commands covered:** git branch, git checkout -b, git switch -c, git switch, git checkout
 
 #### YouTube Title
@@ -149,10 +203,10 @@ The diagram updates live. Viewers watch the DAG change rather than guessing what
 
 ---
 
-### EP 04 — Beginner — The Merge Diamond: Fast-Forward vs No-Fast-Forward
+### EP 05 — Beginner — The Merge Diamond: Fast-Forward vs No-Fast-Forward
 
-**visigit mode:** normal (commit chain) + branch (topology)  
-**Target length:** 12–15 min  
+**visigit mode:** normal (commit chain) + branch (topology)
+**Target length:** 12–15 min
 **Commands covered:** git merge, git merge --no-ff
 
 #### YouTube Title
@@ -174,7 +228,7 @@ The diagram updates live. Viewers watch the DAG change rather than guessing what
 | 7:30 | The diamond: base → left path → merge commit ← right path ← base |
 | 8:30 | Switch to `--mode branch`: see the topology in branch view |
 | 9:30 | When to use each: open-source vs team workflows |
-| 11:00 | Merge conflicts: what they look like (brief; deep dive in a separate video) |
+| 11:00 | Merge conflicts: what they look like (brief; deep dive in EP06) |
 | 12:30 | Merge commit has two parents — show the edges in the graph |
 
 #### Key Visual Moments
@@ -185,10 +239,10 @@ The diagram updates live. Viewers watch the DAG change rather than guessing what
 
 ---
 
-### EP 05 — Beginner — Resolving Merge Conflicts: What MERGE_HEAD Shows You
+### EP 06 — Beginner — Resolving Merge Conflicts: What MERGE_HEAD Shows You
 
-**visigit mode:** normal  
-**Target length:** 10–12 min  
+**visigit mode:** normal
+**Target length:** 10–12 min
 **Commands covered:** git merge (conflict), git status, git add, git commit, git merge --abort
 
 #### YouTube Title
@@ -220,10 +274,10 @@ The diagram updates live. Viewers watch the DAG change rather than guessing what
 
 ---
 
-### EP 06 — Beginner — Reset Demystified: Three Pointer Moves, Not Three Commands
+### EP 07 — Beginner — Reset Demystified: Three Pointer Moves, Not Three Commands
 
-**visigit mode:** normal  
-**Target length:** 12–14 min  
+**visigit mode:** normal
+**Target length:** 12–14 min
 **Commands covered:** git reset --soft, git reset --mixed, git reset --hard
 
 #### YouTube Title
@@ -246,7 +300,7 @@ The diagram updates live. Viewers watch the DAG change rather than guessing what
 | 8:30 | Verify: `git status` is clean; the files are gone |
 | 9:30 | The unreachable commit: it still exists in `.git/objects` — show in verbose mode |
 | 10:30 | When to use each: fixing the last commit vs recovering from disaster |
-| 12:00 | Teaser: Episode 14 shows you how to recover from --hard with reflog |
+| 12:00 | Teaser: Episode 18 shows you how to recover from --hard with reflog |
 
 #### Key Visual Moments
 - Branch pointer moving back one commit with each reset
@@ -256,10 +310,10 @@ The diagram updates live. Viewers watch the DAG change rather than guessing what
 
 ---
 
-### EP 07 — Beginner — Undo Without Fear: revert vs amend (vs reset)
+### EP 08 — Beginner — Undo Without Fear: revert vs amend (vs reset)
 
-**visigit mode:** normal  
-**Target length:** 11–13 min  
+**visigit mode:** normal
+**Target length:** 11–13 min
 **Commands covered:** git revert, git commit --amend, (contrast with git reset)
 
 #### YouTube Title
@@ -275,7 +329,7 @@ The diagram updates live. Viewers watch the DAG change rather than guessing what
 | 1:00 | Build a small history: a couple of commits |
 | 2:00 | `git revert HEAD` — a NEW commit appears on top; the chain GROWS |
 | 3:00 | Why revert is safe on shared branches: it doesn't rewrite anything |
-| 4:00 | Contrast: `git reset` moves the pointer back (the EP06 mechanic) |
+| 4:00 | Contrast: `git reset` moves the pointer back (the EP07 mechanic) |
 | 5:00 | `git commit --amend` — fix the last commit's message or content |
 | 5:45 | Watch: the old commit VANISHES; a new SHA replaces it |
 | 6:30 | The catch: amend writes NO ORIG_HEAD — the old commit is only in the reflog |
@@ -292,10 +346,10 @@ The diagram updates live. Viewers watch the DAG change rather than guessing what
 
 ---
 
-### EP 08 — Beginner — Don't Panic: Detached HEAD Explained and Escaped
+### EP 09 — Beginner — Don't Panic: Detached HEAD Explained and Escaped
 
-**visigit mode:** normal  
-**Target length:** 10–12 min  
+**visigit mode:** normal
+**Target length:** 10–12 min
 **Commands covered:** git checkout SHA, git switch --detach, git checkout -b recovery, git switch -
 
 #### YouTube Title
@@ -327,14 +381,49 @@ The diagram updates live. Viewers watch the DAG change rather than guessing what
 
 ---
 
+### EP 10 — Beginner — Orphan Branches: Commits With No Parents, On Purpose
+
+**visigit mode:** normal + branch
+**Target length:** 9–10 min
+**Commands covered:** git checkout --orphan, git switch --orphan, git rm -rf ., git merge-base
+
+#### YouTube Title
+> git checkout --orphan: Two Branches, One Repo, Zero Shared History
+
+#### YouTube Description
+> Every commit you've made in this series so far has had a parent — except the very first. git checkout --orphan lets you deliberately create ANOTHER parentless commit, on a brand-new branch, inside a repo that already has history. That's exactly how gh-pages branches and "start clean" branches work. This video shows the disconnected commit forming live in visigit, and proves with git merge-base that it truly shares nothing with main.
+
+#### Outline
+| Time | Section |
+|------|---------|
+| 0:00 | Hook: two branches, same repo, zero shared commits — how? |
+| 1:00 | Recap: every commit we've made so far has had a parent, except the very first (EP02) |
+| 1:45 | `git switch --orphan gh-pages` (or `git checkout --orphan gh-pages`) — HEAD moves to a brand-new, commit-less branch |
+| 2:30 | Graph before the first commit: `gh-pages` label exists with NO commit underneath — an "unborn" branch, same as right after `git init` |
+| 3:15 | `git rm -rf .` clears the carried-over working tree; then `echo "<html>hi</html>" > index.html && git add index.html` |
+| 4:00 | `git commit -m "Initial gh-pages commit"` — a brand new commit node appears with ZERO parent edges, sitting completely apart from main's chain |
+| 5:00 | `--mode branch`: two fully disconnected trees rendered in the same repo |
+| 5:45 | `git log --graph --oneline --all` in the terminal — two separate histories, no shared ancestor |
+| 6:30 | `git merge-base main gh-pages` — no output / error: no common ancestor exists, confirming the disconnection |
+| 7:15 | Real-world uses: gh-pages docs sites, deliberately dropping sensitive history into a fresh start, vendor-reset branches |
+| 8:00 | The catch: normal merges are meaningless between orphaned trees; you push/pull the branch like any other ref |
+| 9:00 | Recap: `--orphan` is the third way (besides `init` and the very first commit) a parentless commit enters your repo |
+
+#### Key Visual Moments
+- A branch label with no commit node underneath it — an "unborn" branch, identical in shape to right after `git init`
+- The first orphan commit appearing with zero inbound parent edges, floating separately from every other node in the graph
+- Branch-mode topology showing two completely disconnected trees inside one repository
+
+---
+
 ## Tier 2 — Intermediate: Git Workflows
 
 ---
 
-### EP 09 — Intermediate — Merge vs Rebase: Same Code, Completely Different History
+### EP 11 — Intermediate — Merge vs Rebase: Same Code, Completely Different History
 
-**visigit mode:** normal  
-**Target length:** 13–15 min  
+**visigit mode:** normal
+**Target length:** 13–15 min
 **Commands covered:** git merge --no-ff, git rebase, git log --oneline --graph
 
 #### YouTube Title
@@ -367,10 +456,49 @@ The diagram updates live. Viewers watch the DAG change rather than guessing what
 
 ---
 
-### EP 10 — Intermediate — origin/main Is Not main: Remote Tracking Branches
+### EP 12 — Intermediate — Rebase Conflicts: --continue, --skip, --abort
 
-**visigit mode:** normal  
-**Target length:** 12–14 min  
+**visigit mode:** normal
+**Target length:** 12–14 min
+**Commands covered:** git rebase (conflict), git status, git add, git rebase --continue, git rebase --skip, git rebase --abort
+
+#### YouTube Title
+> Rebase Conflicts Feel Like Whack-a-Mole — Here's Why, and How to Get Through One
+
+#### YouTube Description
+> A merge conflict stops you once. A rebase conflict can stop you once PER COMMIT being replayed, because rebase applies your commits one at a time. This video walks a real two-commit rebase conflict start to finish — resolving, continuing, resolving again — and shows the three escape hatches: --continue, --skip, and --abort. You'll see exactly why the same conflict can reappear and what visigit shows you while it's happening.
+
+#### Outline
+| Time | Section |
+|------|---------|
+| 0:00 | Hook: "rebase conflicts feel like whack-a-mole — here's why" |
+| 1:00 | Recap EP11: rebase replays commits one commit at a time, not all at once |
+| 1:45 | Build the scenario: main and feature both edit the same line; feature has TWO commits |
+| 2:30 | `git rebase main` from feature — the first commit replay conflicts immediately |
+| 3:15 | `git status` mid-rebase: "You are currently rebasing... could not apply \<sha\>" |
+| 4:00 | visigit: the original feature commits are untouched and still reachable via ORIG_HEAD (the pre-rebase tip); the in-progress rebase state itself lives in `.git/rebase-merge/`, a plain directory git checks for — not a ref visigit tracks, unlike MERGE_HEAD |
+| 4:45 | Resolve the conflict in the file, `git add <file>` |
+| 5:30 | `git rebase --continue` — the first commit replays successfully with a NEW SHA |
+| 6:15 | The second commit replay ALSO conflicts (it touches the same region) — same dance again |
+| 7:00 | Resolve, `git add`, `git rebase --continue` again |
+| 7:45 | Rebase finishes: linear history, two new-SHA commits, ORIG_HEAD still points at the original pre-rebase tip |
+| 8:30 | The escape hatches: `git rebase --skip` (drop this commit's changes entirely and move on) vs `git rebase --abort` (undo everything, back to the pre-rebase state) |
+| 9:30 | Why this differs from a merge conflict: merge is one conflict for the whole integration; rebase is one potential conflict PER commit being replayed |
+| 10:30 | Practical tip: if the same conflict keeps recurring on every commit, `--abort` and reach for a merge instead |
+| 11:15 | Recap: `--continue` after each fix, `--skip` to drop a commit, `--abort` to bail completely |
+
+#### Key Visual Moments
+- The pre-rebase feature tip staying fully intact and visible via ORIG_HEAD while the rebase is paused mid-conflict
+- A new-SHA commit node appearing after the first `--continue`, while the second commit is still pending replay
+- `git rebase --abort` snapping the graph back exactly to its pre-rebase shape, as if the rebase never started
+- Side-by-side terminal + diagram: a merge conflict's single `CONFLICT` message vs. a rebase's repeated "could not apply" messages
+
+---
+
+### EP 13 — Intermediate — origin/main Is Not main: Remote Tracking Branches
+
+**visigit mode:** normal
+**Target length:** 12–14 min
 **Commands covered:** git remote add, git fetch, git pull, git push, git branch -vv
 
 #### YouTube Title
@@ -402,10 +530,10 @@ The diagram updates live. Viewers watch the DAG change rather than guessing what
 
 ---
 
-### EP 11 — Intermediate — Two Repos, One Screen: Watching local and origin Together
+### EP 14 — Intermediate — Two Repos, One Screen: Watching local and origin Together
 
-**visigit mode:** all (two monitor sessions)  
-**Target length:** 11–13 min  
+**visigit mode:** all (two monitor sessions)
+**Target length:** 11–13 min
 **Commands covered:** git clone, git push, git fetch, git pull (with a bare "origin" on the same machine)
 
 #### YouTube Title
@@ -437,10 +565,48 @@ The diagram updates live. Viewers watch the DAG change rather than guessing what
 
 ---
 
-### EP 12 — Intermediate — Stash Is a Secret Commit: What git stash Actually Creates
+### EP 15 — Intermediate — One Remote Isn't Enough: origin, upstream, and the Fork Workflow
 
-**visigit mode:** verbose  
-**Target length:** 10–12 min  
+**visigit mode:** normal
+**Target length:** 11–13 min
+**Commands covered:** git remote add upstream, git remote -v, git fetch upstream, git merge upstream/main (or rebase), git push origin, git switch -c, git branch -vv
+
+#### YouTube Title
+> origin Isn't Always the Real Project — Meet upstream and the Fork Workflow
+
+#### YouTube Description
+> Contributing to an open-source project means juggling TWO remotes: origin (your fork) and upstream (the real project). Most tutorials gloss over this. This video shows both full sets of remote-tracking refs in one visigit graph, keeps your fork's main in sync with upstream, and walks through the exact commands for a clean feature-branch contribution — without ever pushing directly to upstream.
+
+#### Outline
+| Time | Section |
+|------|---------|
+| 0:00 | Hook: "origin" isn't always the real project — meet upstream |
+| 1:00 | Recap EP13 (origin/main) mechanics with a single remote |
+| 1:45 | Scenario: clone your fork as `origin`; the real project is a second bare repo you add as `upstream` |
+| 2:30 | `git remote add upstream ../upstream.git` |
+| 3:15 | `git remote -v` — origin (fetch/push) vs upstream (fetch/push) listed side by side |
+| 4:00 | Graph: refs/remotes/origin/main AND refs/remotes/upstream/main both visible at once |
+| 4:45 | Someone else pushes to upstream directly (simulate a teammate) — upstream/main is now ahead of origin/main |
+| 5:30 | `git fetch upstream` — only upstream/main moves; origin/main and local main stay untouched |
+| 6:15 | `git merge upstream/main` (or `git rebase upstream/main`) — local main catches up to the real project |
+| 7:00 | `git push origin main` — sync your fork's main with what you just pulled from upstream |
+| 7:45 | Feature-branch workflow: `git switch -c feature/thing`, commit, `git push -u origin feature/thing` |
+| 8:30 | `git branch -vv` — reads ahead/behind against `origin`, never `upstream`, for your feature branch |
+| 9:15 | Why you never push directly to upstream in a fork workflow — you open a PR from origin instead |
+| 10:00 | Recap: two remotes, two sets of tracking refs, one job each — upstream feeds you, origin receives your work |
+
+#### Key Visual Moments
+- Two full sets of remote-tracking refs (`origin/*` and `upstream/*`) rendered simultaneously in one graph
+- upstream/main advancing on its own while origin/main and local main stay frozen, until you explicitly fetch and merge
+- local main catching up to upstream/main, then origin/main catching up to local main — three pointers converging in sequence
+- A feature branch's remote-tracking ref appearing only under origin/*, never under upstream/*
+
+---
+
+### EP 16 — Intermediate — Stash Is a Secret Commit: What git stash Actually Creates
+
+**visigit mode:** verbose
+**Target length:** 10–12 min
 **Commands covered:** git stash, git stash list, git stash pop, git stash drop, git stash apply
 
 #### YouTube Title
@@ -462,7 +628,7 @@ The diagram updates live. Viewers watch the DAG change rather than guessing what
 | 6:30 | `git stash pop` — stash ref disappears; changes re-enter the working tree |
 | 7:30 | `git stash apply` vs `git stash pop`: apply leaves the stash entry; pop removes it |
 | 8:30 | `git stash drop` — entry removed from graph |
-| 9:30 | Why stash is a commit: it survives garbage collection; it has a SHA |
+| 9:30 | Why stash is a commit: it has a SHA and behaves like any other commit — but it's only protected from garbage collection as long as refs/stash (or its reflog) still points to it, exactly like any other ref |
 | 10:30 | Stash is only visible in verbose mode — explain why (include_stash flag) |
 
 #### Key Visual Moments
@@ -473,10 +639,10 @@ The diagram updates live. Viewers watch the DAG change rather than guessing what
 
 ---
 
-### EP 13 — Intermediate — Cherry-Pick: Copying a Commit (and Why the SHA Changes)
+### EP 17 — Intermediate — Cherry-Pick: Copying a Commit (and Why the SHA Changes)
 
-**visigit mode:** normal  
-**Target length:** 10–12 min  
+**visigit mode:** normal
+**Target length:** 10–12 min
 **Commands covered:** git cherry-pick, git cherry-pick --no-commit, git cherry-pick --abort
 
 #### YouTube Title
@@ -509,10 +675,10 @@ The diagram updates live. Viewers watch the DAG change rather than guessing what
 
 ---
 
-### EP 14 — Intermediate — You Didn't Lose It: Finding Commits with git reflog
+### EP 18 — Intermediate — You Didn't Lose It: Finding Commits with git reflog
 
-**visigit mode:** normal  
-**Target length:** 12–14 min  
+**visigit mode:** normal
+**Target length:** 12–14 min
 **Commands covered:** git reflog, git reset --hard, git checkout SHA, git branch recover
 
 #### YouTube Title
@@ -546,10 +712,10 @@ The diagram updates live. Viewers watch the DAG change rather than guessing what
 
 ---
 
-### EP 15 — Intermediate — Git's Safety Nets: ORIG_HEAD, FETCH_HEAD, and Friends
+### EP 19 — Intermediate — Git's Safety Nets: ORIG_HEAD, FETCH_HEAD, and Friends
 
-**visigit mode:** normal  
-**Target length:** 10–12 min  
+**visigit mode:** normal
+**Target length:** 10–12 min
 **Commands covered:** observing ORIG_HEAD, FETCH_HEAD, MERGE_HEAD, CHERRY_PICK_HEAD, BISECT_HEAD
 
 #### YouTube Title
@@ -564,11 +730,11 @@ The diagram updates live. Viewers watch the DAG change rather than guessing what
 | 0:00 | The refs you keep seeing but nobody explains |
 | 1:00 | ORIG_HEAD: written by reset, rebase, and merge — the "where I was" pointer |
 | 2:30 | Recover from `git reset --hard` using ORIG_HEAD, live |
-| 3:30 | MERGE_HEAD: the other side of an in-progress merge (callback to EP05) |
+| 3:30 | MERGE_HEAD: the other side of an in-progress merge (callback to EP06) |
 | 4:30 | CHERRY_PICK_HEAD: the commit being applied during a cherry-pick conflict |
 | 5:30 | FETCH_HEAD: what `git fetch` just brought down |
-| 6:30 | BISECT_HEAD: where a bisect session is currently testing (callback to EP18) |
-| 7:30 | The one exception: `git commit --amend` writes NO ORIG_HEAD (callback to EP07) |
+| 6:30 | BISECT_HEAD: only written when a bisect session runs with `--no-checkout` — a plain `git bisect start`/`good`/`bad` session detaches HEAD directly at the midpoint instead and never writes this ref (callback to EP26's bonus segment) |
+| 7:30 | The one exception: `git commit --amend` writes NO ORIG_HEAD (callback to EP08) |
 | 8:30 | Why visigit shows these: they ARE refs — real pointers into the object store |
 | 9:30 | The mental model: almost nothing is ever truly lost until git gc |
 | 11:00 | Recap: every scary command leaves a breadcrumb — now you can see them |
@@ -576,8 +742,81 @@ The diagram updates live. Viewers watch the DAG change rather than guessing what
 #### Key Visual Moments
 - ORIG_HEAD appearing after reset/rebase/merge, keeping the "old" tip reachable
 - MERGE_HEAD / CHERRY_PICK_HEAD appearing only mid-operation, then vanishing on completion
-- FETCH_HEAD and BISECT_HEAD shown as ordinary ref nodes with no edge label
+- FETCH_HEAD shown as an ordinary ref node with no edge label; BISECT_HEAD shown the same way, but only during a `--no-checkout` bisect session
 - The contrast: amend leaves no safety net, so its old commit really is gone from the graph
+
+---
+
+### EP 20 — Intermediate — Finding the Needle: git blame, log -S, and log --grep
+
+**visigit mode:** normal
+**Target length:** 11–13 min
+**Commands covered:** git log --grep, git log --author, git log -S, git log -G, git blame, git blame -L, git show
+
+#### YouTube Title
+> Who Wrote This Line, and Why? git blame, log -S, and log --grep Explained
+
+#### YouTube Description
+> Not every git episode is about changing the graph — sometimes you just need to search it. This video covers the three tools every developer eventually needs: git log --grep and --author to filter commits by metadata, git log -S (the "pickaxe") to find exactly when a string was added or removed, and git blame to see who last touched every line. We use a buried one-line bug to show all three working together to pin down the exact commit that caused it.
+
+#### Outline
+| Time | Section |
+|------|---------|
+| 0:00 | Hook: "who wrote this line, and why" — the question every dev asks eventually |
+| 1:00 | Note: this episode doesn't change the graph — visigit renders the map once, then we search the terrain |
+| 1:30 | Build a history with an intentionally buried change (a bug introduced 8 commits back, one line) |
+| 2:30 | `git log --oneline --graph --all` next to the static visigit diagram — same DAG, two views |
+| 3:15 | `git log --grep "fix"` — filter commits by message text |
+| 4:00 | `git log --author "name"` — filter by author |
+| 4:45 | `git log -S "old_value"` — the "pickaxe": find commits that ADDED or REMOVED a literal string |
+| 5:45 | `git log -G "regex"` — pickaxe's regex sibling, matches diff lines by pattern |
+| 6:45 | Pin down the exact commit that introduced the bug using `-S` |
+| 7:30 | `git blame app.py` — every line annotated with the commit and author that last touched it |
+| 8:30 | `git blame -L 10,20 app.py` — scope blame to a line range |
+| 9:15 | `git show <sha>` — full diff of the commit blame pointed at |
+| 10:00 | The trap: blame shows the LAST commit to touch a line, not necessarily the one that introduced the bug — `git blame -w` ignores whitespace, `--ignore-rev` skips a known noisy reformat commit |
+| 11:00 | Recap: grep/author search by metadata, pickaxe searches by content, blame searches by line |
+
+#### Key Visual Moments
+- The static diagram used as a reference map while terminal output narrows down to a single commit
+- `-S` narrowing a full history down to the one commit where a string's occurrence count changed
+- `git blame` output lining up with the SHA of a node already visible in the diagram
+
+---
+
+### EP 21 — Intermediate — Partial Commits: What git add -p Actually Stages
+
+**visigit mode:** verbose
+**Target length:** 10–12 min
+**Commands covered:** git add -p, git add -i, git diff, git restore -p, git commit -p
+
+#### YouTube Title
+> git add -p Splits One File Into Two Blobs — Watch It Happen in Verbose Mode
+
+#### YouTube Description
+> git add -p lets you stage half a file's changes and leave the rest for later. Most people run it on faith. This video shows you exactly what it does to the object store: the SAME file appears in visigit's verbose mode in BOTH the Staged box and the Unstaged box at once, each with a DIFFERENT blob SHA. Commit, and only the staged blob becomes part of history — the rest stays right where you left it.
+
+#### Outline
+| Time | Section |
+|------|---------|
+| 0:00 | Hook: "one file, two unrelated changes — you want to commit only one" |
+| 1:00 | Start verbose monitor |
+| 1:30 | Edit app.py in two unrelated places (a real fix + an unrelated debug print) |
+| 2:15 | `git diff` — both hunks show as one big unstaged change |
+| 3:00 | `git add -p app.py` — walk the hunk-by-hunk prompt: y/n/s/e |
+| 3:45 | Stage only the real fix hunk (`y`), skip the debug-print hunk (`n`) |
+| 4:30 | visigit verbose graph: app.py now appears in BOTH the Staged box AND the Unstaged box, with two DIFFERENT blob SHAs |
+| 5:30 | Explain: the staged blob is the index version (fix only); the unstaged blob is the working-tree version (fix + debug print) |
+| 6:15 | `git commit -m "fix: real bug"` — only the staged hunk's blob becomes part of the tree; the debug print stays uncommitted |
+| 7:15 | `git status` confirms app.py is STILL modified after the commit |
+| 7:45 | `git restore -p app.py` — interactively discard (or unstage) the leftover hunk |
+| 8:45 | `e` (manual edit) mode: briefly show editing a hunk by hand for a partial line change |
+| 9:30 | Recap: `-p` lets the index and the working tree diverge on purpose, one hunk at a time; visigit's Staged/Unstaged boxes make that split visible instead of abstract |
+
+#### Key Visual Moments
+- app.py showing up as two separate nodes (Staged and Unstaged) with two different blob SHAs simultaneously
+- The commit consuming only the Staged blob; the Unstaged node for app.py surviving the commit untouched
+- Before/after: one Unstaged node with a combined diff, split into a Staged node (partial) plus a smaller Unstaged node (remainder)
 
 ---
 
@@ -585,10 +824,10 @@ The diagram updates live. Viewers watch the DAG change rather than guessing what
 
 ---
 
-### EP 16 — Advanced — Rewrite History: Interactive Rebase, Squash, and Fixup
+### EP 22 — Advanced — Rewrite History: Interactive Rebase, Squash, and Fixup
 
-**visigit mode:** normal  
-**Target length:** 13–15 min  
+**visigit mode:** normal
+**Target length:** 13–15 min
 **Commands covered:** git rebase -i HEAD~N, squash, fixup, reword, drop, reorder
 
 #### YouTube Title
@@ -611,7 +850,7 @@ The diagram updates live. Viewers watch the DAG change rather than guessing what
 | 9:00 | After rebase: graph shows clean, linear history with new SHAs for every modified commit |
 | 10:00 | Why ALL downstream SHAs change when you modify one commit in a chain |
 | 11:30 | The golden rule: never rebase commits already pushed to a shared branch |
-| 13:00 | `git push --force-with-lease` if you must — covered more in EP 20 |
+| 13:00 | `git push --force-with-lease` if you must — covered more in EP28 |
 
 #### Key Visual Moments
 - Before: messy chain of 5 commit nodes
@@ -621,10 +860,79 @@ The diagram updates live. Viewers watch the DAG change rather than guessing what
 
 ---
 
-### EP 17 — Advanced — Tags Are Just Pointers (Until They Aren't): Annotated vs Lightweight
+### EP 23 — Advanced — Two Kinds of Squash: merge --squash vs rebase -i squash
 
-**visigit mode:** normal  
-**Target length:** 10–12 min  
+**visigit mode:** normal + verbose
+**Target length:** 12–14 min
+**Commands covered:** git merge --squash, git merge -X ours, git merge -X theirs
+
+#### YouTube Title
+> git merge --squash Is Not the Same "Squash" as rebase -i — Here's the Graph Proof
+
+#### YouTube Description
+> "Squash" means two completely different things depending on which command you say it to. Interactive rebase's squash rewrites commits INSIDE your branch before you merge. git merge --squash discards your branch's commit boundaries entirely at merge time and produces a single-parent commit with no merge commit at all — this is exactly what GitHub's "Squash and merge" button does. This video shows both, side by side, plus the -X ours/-X theirs merge strategy options for auto-resolving conflicts in one direction.
+
+#### Outline
+| Time | Section |
+|------|---------|
+| 0:00 | Hook: "squash" means two completely different things depending on which command you say it to |
+| 1:00 | Recap EP22 (interactive rebase squash): combines commits WITHIN a branch before it's shared |
+| 1:45 | New scenario: feature branch has 4 messy commits, ready to land on main |
+| 2:30 | `git merge --squash feature` from main — nothing is committed yet; all of feature's changes land in the index as ONE staged changeset |
+| 3:30 | `git status` — "Squash commit -- not updating HEAD"; verbose graph shows the Staged Changes box full, but no merge commit, no diamond |
+| 4:15 | `git commit -m "Add feature"` — ONE new commit appears on main with ONE parent (main's previous tip) — feature's branch history is NOT preserved, no merge commit, no diamond at all |
+| 5:15 | Side-by-side contrast: `rebase -i` squash rewrites commits INSIDE feature and still produces a normal fast-forward or diamond merge afterward; `merge --squash` discards feature's commit boundaries entirely and never creates a merge commit |
+| 6:15 | When to use which: `rebase -i` squash to clean up your own branch commit-by-commit; `merge --squash` when you don't care about the branch's internal history at all — land one commit (this is what GitHub's "Squash and merge" PR button does) |
+| 7:15 | `-X ours` / `-X theirs`: a real (non-squash) `git merge -X ours feature` — a normal two-parent merge commit, but conflicting hunks auto-resolve favoring main's side |
+| 8:15 | Danger: `-X ours` is NOT the same as `--strategy=ours` (which discards feature's changes entirely, keeping only main's tree) — demonstrate the difference briefly |
+| 9:15 | `-X theirs` — same mechanism, favoring feature's side on conflicts |
+| 10:00 | Recap: rebase -i squash (rewrite, then merge normally) vs merge --squash (a merge that produces no merge commit) vs -X ours/theirs (a real merge, auto-resolving conflicts in one direction) |
+
+#### Key Visual Moments
+- `merge --squash` filling the Staged Changes box without any new commit node appearing at all
+- The resulting squash commit: ONE parent edge only, despite four commits' worth of changes being folded in — no diamond, unlike EP05/EP11's --no-ff merges
+- Side-by-side graphs: interactive-rebase-then-merge (diamond intact) vs `merge --squash` (single-parent commit, feature branch commits invisible in the graph)
+
+---
+
+### EP 24 — Advanced — Moving a Branch's Base: git rebase --onto
+
+**visigit mode:** normal
+**Target length:** 10–12 min
+**Commands covered:** git rebase --onto, git log --graph --all
+
+#### YouTube Title
+> My Branch Is Based on the Wrong Branch — git rebase --onto Fixes It Without Starting Over
+
+#### YouTube Description
+> Plain git rebase replays every commit not already on your target. But what if your branch was built on top of ANOTHER branch you now want to skip entirely? git rebase --onto lets you name the exact exclusion boundary yourself. This video builds a three-branch chain, then replants the tip branch directly onto main — skipping the middle branch's commits completely — and shows exactly which commits get new SHAs and which vanish from the new history.
+
+#### Outline
+| Time | Section |
+|------|---------|
+| 0:00 | Hook: "my branch is based on the WRONG branch — do I have to start over?" |
+| 1:00 | Recap: plain `git rebase main` replays ALL commits not on main — what if you only want SOME of them? |
+| 1:45 | Scenario: `topic` was branched from `feature` (not main); `feature` was branched from main; you want topic's commits directly on main, skipping feature's commits entirely |
+| 3:00 | Build it: main → feature (2 commits) → topic (2 more commits) |
+| 4:00 | `git log --graph --oneline --all` — the three-tier chain visible in both terminal and visigit |
+| 4:45 | The goal stated visually: point at feature's tip (the commits to exclude) and topic's tip (the commits to keep) |
+| 5:30 | `git rebase --onto main feature topic` — read it right-to-left: take topic, exclude everything up to feature, replant onto main |
+| 6:30 | Watch: only topic's 2 commits get new SHAs and reappear directly on top of main; feature's 2 commits are completely skipped |
+| 7:30 | ORIG_HEAD still points at topic's pre-rebase tip — the original commits aren't gone |
+| 8:15 | Second use case: cutting one bad commit permanently out of a chain — `git rebase --onto <sha>~1 <sha> branch` removes exactly that commit |
+| 9:15 | Recap: plain rebase replays "everything not on the target"; --onto lets you name the exact exclusion boundary yourself |
+
+#### Key Visual Moments
+- The three-branch chain (main → feature → topic) fully visible before the rebase
+- Topic's commits reappearing with new SHAs attached directly to main's tip, with feature's commits nowhere in the new chain
+- ORIG_HEAD preserving topic's original (feature-based) position even though the new topic looks completely different
+
+---
+
+### EP 25 — Advanced — Tags Are Just Pointers (Until They Aren't): Annotated vs Lightweight
+
+**visigit mode:** normal
+**Target length:** 10–12 min
 **Commands covered:** git tag, git tag -a, git tag -l, git push --tags, git describe
 
 #### YouTube Title
@@ -646,7 +954,7 @@ The diagram updates live. Viewers watch the DAG change rather than guessing what
 | 7:30 | `git push --tags` — push all tags to remote |
 | 8:30 | `git describe --tags` — finds nearest tag and measures distance in commits |
 | 9:30 | Deleting a tag vs deleting a branch: same `git tag -d` / `git push origin :v1.0` |
-| 10:30 | Signed tags: GPG signature stored in the tag object (brief mention, not deep-dived) |
+| 10:30 | Signed tags: full treatment in EP38 |
 
 #### Key Visual Moments
 - Lightweight tag: single extra ref node pointing straight to commit
@@ -655,17 +963,17 @@ The diagram updates live. Viewers watch the DAG change rather than guessing what
 
 ---
 
-### EP 18 — Advanced — Binary Search Your Bug: git bisect and the Commit Graph
+### EP 26 — Advanced — Binary Search Your Bug: git bisect and the Commit Graph
 
-**visigit mode:** normal  
-**Target length:** 11–13 min  
-**Commands covered:** git bisect start, git bisect good, git bisect bad, git bisect reset, git bisect run
+**visigit mode:** normal
+**Target length:** 12–14 min
+**Commands covered:** git bisect start, git bisect good, git bisect bad, git bisect reset, git bisect run, git bisect start --no-checkout
 
 #### YouTube Title
 > git bisect: Binary Search Your Commit History to Find Exactly When a Bug Appeared
 
 #### YouTube Description
-> A bug exists now that didn't exist six months ago. git bisect performs a binary search through your commit history, halving the search space at each step. This video shows the process in visigit: watch HEAD move through the graph as bisect narrows in on the exact commit that introduced the bug — often in just 7-10 steps through hundreds of commits.
+> A bug exists now that didn't exist six months ago. git bisect performs a binary search through your commit history, halving the search space at each step. This video shows the process in visigit: watch HEAD move through the graph as bisect narrows in on the exact commit that introduced the bug — often in just 7-10 steps through hundreds of commits. We also cover the --no-checkout variant, which is the only mode where git actually writes a BISECT_HEAD ref instead of just moving HEAD.
 
 #### Outline
 | Time | Section |
@@ -675,26 +983,28 @@ The diagram updates live. Viewers watch the DAG change rather than guessing what
 | 2:00 | `git bisect start` |
 | 2:30 | `git bisect bad` — mark current HEAD as bad |
 | 3:00 | `git bisect good <old-sha>` — mark a known good commit |
-| 3:30 | HEAD moves to the midpoint — watch visigit show HEAD at the middle commit |
+| 3:30 | HEAD moves to the midpoint — watch visigit show HEAD directly at the middle commit (default bisect detaches HEAD; no BISECT_HEAD ref appears here) |
 | 4:30 | Test, mark good or bad; HEAD moves again — bisect halves the range |
 | 6:00 | After log2(16) = 4 steps: bisect identifies the exact commit |
 | 7:00 | `git bisect log` — see the search path |
 | 8:00 | `git bisect reset` — HEAD returns to original position |
 | 9:00 | `git bisect run <test-script>` — fully automated bisect |
-| 10:30 | Real-world tip: use `--max-commit-depth N` in visigit to limit graph depth during bisect |
+| 10:00 | Bonus: `git bisect start --no-checkout` — this time the working tree never moves; instead a BISECT_HEAD ref appears in the graph pointing at the candidate commit (callback to EP19) |
+| 11:30 | Why `--no-checkout` exists: useful when checking out every candidate is expensive (huge working trees, build steps) |
+| 12:30 | Real-world tip: use `--max-commit-depth N` in visigit to limit graph depth during bisect |
 
 #### Key Visual Moments
-- HEAD node jumping to the midpoint commit after `git bisect start` + good/bad
+- Default bisect: HEAD node jumping to the midpoint commit after `git bisect start` + good/bad — no BISECT_HEAD, because the working tree is being checked out directly
 - Each test step: HEAD moves to a new midpoint in the graph
-- The bisect-identified commit highlighted as HEAD lands on it
+- `--no-checkout` bisect: a distinct BISECT_HEAD ref node appears pointing at the candidate commit while HEAD itself stays put
 - `git bisect reset` moving HEAD back to its original position
 
 ---
 
-### EP 19 — Advanced — Two Branches, One Checkout: git worktree Explained
+### EP 27 — Advanced — Two Branches, One Checkout: git worktree Explained
 
-**visigit mode:** branch  
-**Target length:** 10–12 min  
+**visigit mode:** branch
+**Target length:** 10–12 min
 **Commands covered:** git worktree add, git worktree list, git worktree remove, git worktree prune
 
 #### YouTube Title
@@ -725,10 +1035,10 @@ The diagram updates live. Viewers watch the DAG change rather than guessing what
 
 ---
 
-### EP 20 — Advanced — Force Push Is Destroying Someone's History: Here's the Proof
+### EP 28 — Advanced — Force Push Is Destroying Someone's History: Here's the Proof
 
-**visigit mode:** normal  
-**Target length:** 11–13 min  
+**visigit mode:** normal
+**Target length:** 11–13 min
 **Commands covered:** git push --force, git push --force-with-lease, git reflog (on remote)
 
 #### YouTube Title
@@ -765,10 +1075,10 @@ The diagram updates live. Viewers watch the DAG change rather than guessing what
 
 ---
 
-### EP 21 — Internals — Inside a Commit: blob, tree, commit — Git's Four Object Types
+### EP 29 — Internals — Inside a Commit: blob, tree, commit — Git's Four Object Types
 
-**visigit mode:** verbose  
-**Target length:** 13–15 min  
+**visigit mode:** verbose
+**Target length:** 13–15 min
 **Commands covered:** git commit (step-by-step observation)
 
 #### YouTube Title
@@ -802,10 +1112,10 @@ The diagram updates live. Viewers watch the DAG change rather than guessing what
 
 ---
 
-### EP 22 — Internals — Submodules vs Subtrees: Pointer or Merged Files?
+### EP 30 — Internals — Submodules vs Subtrees: Pointer or Merged Files?
 
-**visigit mode:** verbose  
-**Target length:** 12–14 min  
+**visigit mode:** verbose
+**Target length:** 12–14 min
 **Commands covered:** git submodule add, git subtree add
 
 #### YouTube Title
@@ -838,10 +1148,10 @@ The diagram updates live. Viewers watch the DAG change rather than guessing what
 
 ---
 
-### EP 23 — Internals — Same File, Same SHA: How Git Never Stores the Same Content Twice
+### EP 31 — Internals — Same File, Same SHA: How Git Never Stores the Same Content Twice
 
-**visigit mode:** verbose  
-**Target length:** 11–13 min  
+**visigit mode:** verbose
+**Target length:** 11–13 min
 **Commands covered:** git add, git commit (observing SHA reuse across commits)
 
 #### YouTube Title
@@ -873,10 +1183,10 @@ The diagram updates live. Viewers watch the DAG change rather than guessing what
 
 ---
 
-### EP 24 — Internals — The Staging Area Exposed: What git add Actually Does to the Object Store
+### EP 32 — Internals — The Staging Area Exposed: What git add Actually Does to the Object Store
 
-**visigit mode:** verbose  
-**Target length:** 12–14 min  
+**visigit mode:** verbose
+**Target length:** 12–14 min
 **Commands covered:** git add, git restore --staged, git rm --cached, git diff --staged
 
 #### YouTube Title
@@ -910,10 +1220,10 @@ The diagram updates live. Viewers watch the DAG change rather than guessing what
 
 ---
 
-### EP 25 — Internals — All the Way Down: git cat-file, .git/objects, and Pack Files
+### EP 33 — Internals — All the Way Down: git cat-file, .git/objects, and Pack Files
 
-**visigit mode:** verbose + terminal (git cat-file)  
-**Target length:** 14–16 min  
+**visigit mode:** verbose + terminal (git cat-file)
+**Target length:** 14–16 min
 **Commands covered:** git cat-file -p/-t/-s, git hash-object, ls .git/objects/, git gc, git verify-pack
 
 #### YouTube Title
@@ -939,12 +1249,225 @@ The diagram updates live. Viewers watch the DAG change rather than guessing what
 | 10:30 | `git verify-pack -v *.pack` — see every object in the pack with type and size |
 | 11:30 | Delta compression: how pack files store object diffs instead of full content |
 | 13:00 | The full picture: git is just a key-value store + a DAG + some ref pointers |
-| 14:30 | What to explore next: git's protocol, shallow clones, partial clones |
+| 14:30 | What's next in this series: shallow-clone boundary commits (EP34) and partial/sparse clones (EP39) both build directly on the object model you just saw |
 
 #### Key Visual Moments
 - Verbose graph SHA labels matching the SHAs shown in `git cat-file` terminal output
 - The identical blob SHA appearing in both the graph node and `ls .git/objects/` output
 - Pack file creation: loose object files disappear from `.git/objects/`; pack file appears
+
+---
+
+### EP 34 — Internals — Thin Slices: Shallow Clones and Grafted History
+
+**visigit mode:** normal
+**Target length:** 10–12 min
+**Commands covered:** git clone --depth N, git log, cat .git/shallow, git fetch --unshallow
+
+#### YouTube Title
+> Shallow Clones: How git clone --depth 1 Fakes a Repo With No History
+
+#### YouTube Description
+> git clone --depth 1 downloads a huge repo almost instantly by simply not fetching most of its history. But the oldest commit you DO have still needs to render as a valid DAG node — so git fakes it as parentless, even though it isn't really the repo's root. This video shows that fake boundary commit live in visigit, opens the raw .git/shallow file that makes it possible, and watches the graph grow backward the instant you run git fetch --unshallow.
+
+#### Outline
+| Time | Section |
+|------|---------|
+| 0:00 | Hook: "clone a huge repo and get its history WITHOUT downloading years of commits" |
+| 1:00 | `git clone --depth 1 <path>` — the clone finishes almost instantly regardless of repo size |
+| 1:45 | `git log` in the shallow clone — history just... stops after 1 commit |
+| 2:30 | Open it in visigit: the oldest visible commit renders normally, but it has NO parent edge, even though the original repo had a long history before it |
+| 3:30 | That's the boundary commit: git records it in `.git/shallow` and treats it as parentless locally; the parent SHAs genuinely aren't in `.git/objects` |
+| 4:15 | The tool has to cope with this gracefully: a commit whose recorded parent SHA can't be resolved locally is truncated at that boundary instead of erroring |
+| 5:00 | `cat .git/shallow` — the raw file listing boundary commit SHAs |
+| 5:45 | Try `git log --all` on other branches — same truncation everywhere |
+| 6:30 | `git fetch --unshallow` — full history streams in |
+| 7:15 | visigit re-rendered: the old parent edge appears retroactively; the graph "grows backward" past the old boundary |
+| 8:00 | `git clone --depth 5` variant — boundary sits 5 commits back instead of 1 |
+| 8:45 | Why this matters: CI checkouts, huge monorepos, and `--filter=blob:none` partial clones (full treatment in EP39) all rely on similar truncation tricks |
+| 9:30 | Recap: shallow history isn't a lie about the commits you have, it's an honest gap where parent objects were never downloaded |
+
+#### Key Visual Moments
+- The oldest commit in a shallow clone rendering with zero parent edges, identical in shape to a true first commit or an orphan-branch commit (EP10) despite NOT actually being the repo's root
+- The graph visibly "growing backward" the instant `git fetch --unshallow` completes, with a new parent edge attaching to a commit that already existed on screen
+- `.git/shallow`'s boundary SHA matching exactly the parentless node in the diagram
+
+---
+
+## Tier 5 — Reference: Configuration & Housekeeping
+
+These five episodes round out "everything you'd want to know about git." They're lighter on
+diagram-watching than the rest of the series — some (config, rerere) barely touch the object
+graph at all — so they're framed as compact reference episodes rather than full diagram
+walkthroughs.
+
+---
+
+### EP 35 — Reference — Making Git Yours: git config, Aliases, and .gitconfig
+
+**visigit mode:** terminal only — no diagram, config doesn't touch the object store or refs
+**Target length:** 8–10 min
+**Commands covered:** git config --global user.name/user.email, git config --list --show-origin, git config --global alias.X, git config --global core.editor, git config --global init.defaultBranch
+
+#### YouTube Title
+> git config --global Explained: Identity, Aliases, and the Three Config Files That Run Everything
+
+#### YouTube Description
+> Every commit's author field, every default editor, every shortcut you type — it all comes from git config. This episode has no diagram, because config doesn't touch refs or objects; it's pure setup. We cover the three config scopes and their precedence, building real aliases (including a shell-out alias), and where every setting physically lives on disk.
+
+#### Outline
+| Time | Section |
+|------|---------|
+| 0:00 | Hook: three levels of config that silently decide who you are in every commit |
+| 1:00 | `git config --global user.name` / `user.email` — what actually goes into every commit's author field |
+| 2:00 | `git config --list --show-origin` — see exactly which file each setting came from |
+| 3:00 | The three scopes: --system, --global, --local, and precedence (local wins) |
+| 4:00 | Per-repo override: `git config user.email work@company.com` inside one repo only |
+| 5:00 | Aliases: `git config --global alias.st status`, `alias.lg "log --graph --oneline --all"` |
+| 6:30 | A shell-out alias: `alias.undo "!git reset --soft HEAD~1"` — the `!` prefix runs a real shell command |
+| 7:30 | `git config --global core.editor "code --wait"` — set your commit-message editor |
+| 8:15 | `git config --global init.defaultBranch main` — why new repos say "main" (or don't) |
+| 9:00 | Where it all lives: `~/.gitconfig` and `.git/config`, opened side by side in a text editor |
+| 9:45 | Recap: config makes every other episode's commands shorter and safer |
+
+#### Key Visual Moments
+- No diagram this episode — call that out explicitly on screen
+- `--show-origin` output pinpointing which config file wins for a given setting
+- A raw `.gitconfig` file on screen, mapped line-by-line to the `git config` commands that wrote it
+- The custom `git lg` alias reproducing the same `--graph` output used throughout the whole series, this time as a one-word command
+
+---
+
+### EP 36 — Reference — Line Endings and .gitattributes: Taming Cross-Platform Diffs
+
+**visigit mode:** verbose
+**Target length:** 8–10 min
+**Commands covered:** .gitattributes, git config core.autocrlf, git add --renormalize, git diff --stat
+
+#### YouTube Title
+> "Every File Changed" But You Didn't Touch Anything: Line Endings, autocrlf, and .gitattributes
+
+#### YouTube Description
+> Windows uses CRLF, Unix uses LF, and a repo with mixed line endings produces diffs that touch every line of every file for no reason. This episode covers core.autocrlf (a personal, local setting) and the better fix — a committed .gitattributes file that makes line-ending rules part of the repo itself — plus the one command that cleanly renormalizes an already-mixed repo.
+
+#### Outline
+| Time | Section |
+|------|---------|
+| 0:00 | Hook: "it says every file changed, but I didn't touch anything" — the classic line-ending diff bomb |
+| 1:00 | The cause: Windows CRLF vs Unix LF, and a repo with mixed line endings |
+| 2:00 | `git config core.autocrlf true/input/false` — what each setting does on checkout/commit |
+| 3:00 | The better fix: `.gitattributes` — `* text=auto`, `*.sh text eol=lf`, `*.png binary` |
+| 4:30 | Create a `.gitattributes`, then `git add --renormalize .` — rewrites tracked files' line endings to match the new rules in a single, clean commit |
+| 5:30 | Verbose graph: a new blob SHA for every renormalized file, but `git diff --stat` shows the change is explicitly whitespace/line-ending only, not silent |
+| 6:30 | `.gitattributes` for binary files: marking `*.png binary` stops git from ever trying to diff or merge them as text |
+| 7:15 | Custom diff drivers for binary formats (brief mention) |
+| 8:00 | Recap: autocrlf is a personal/local setting; .gitattributes is a committed, repo-wide contract — prefer the latter for teams |
+
+#### Key Visual Moments
+- Every tracked text file getting a new blob SHA in one commit after `--renormalize`, visibly distinct in cause from EP31's "real content change" blob updates
+- `.gitattributes` itself rendered as an ordinary tracked blob — it's just a file, with no special node type
+
+---
+
+### EP 37 — Reference — Never Resolve the Same Conflict Twice: git rerere
+
+**visigit mode:** normal (the graph is a constant backdrop across both rebases — the point is that it doesn't change, only your manual effort does)
+**Target length:** 8–9 min
+**Commands covered:** git config --global rerere.enabled true, git rerere diff, git rerere status, git rerere forget
+
+#### YouTube Title
+> git rerere: Stop Resolving the Same Rebase Conflict Every Single Time
+
+#### YouTube Description
+> Rebasing a long-lived branch against a moving main means resolving the SAME conflict over and over. git rerere ("reuse recorded resolution") remembers how you resolved a conflict and auto-applies that resolution the next time it sees the identical conflict. This episode runs the same rebase twice — once manually, once with rerere doing the work — on an identical resulting graph, to make clear that rerere changes your effort, not your history.
+
+#### Outline
+| Time | Section |
+|------|---------|
+| 0:00 | Hook: rebasing the same long-lived branch against main, over and over, resolving the SAME conflict every single time |
+| 1:00 | `git config --global rerere.enabled true` — "reuse recorded resolution" |
+| 2:00 | First rebase: hit a conflict, resolve it manually, `git add`, `git rebase --continue` — rerere silently records the resolution |
+| 3:00 | `.git/rr-cache/` — where recorded resolutions live, keyed by a hash of the conflict content |
+| 3:45 | Second rebase (same branch, main has moved again): the SAME conflict appears |
+| 4:30 | `git rerere diff` — shows the recorded resolution about to be auto-applied |
+| 5:00 | git auto-applies it and stages the file — no manual edit needed this time, just `git rebase --continue` |
+| 6:00 | `git rerere status` — see which paths have recorded resolutions in play |
+| 6:45 | When it breaks: if the conflicting hunk's surrounding context changes, rerere won't match and you resolve manually again (and it re-records) |
+| 7:30 | `git rerere forget <path>` to discard a bad recorded resolution |
+| 8:00 | Recap: rerere doesn't change the graph, it changes how much manual work future conflicts cost |
+
+#### Key Visual Moments
+- Two rebases producing an IDENTICAL resulting graph shape, but the second one requiring zero manual conflict edits
+- `.git/rr-cache/` contents shown side-by-side with the conflict markers they resolved
+
+---
+
+### EP 38 — Reference — Proving It Was You: Signing Commits and Tags
+
+**visigit mode:** verbose (for the cat-file callback)
+**Target length:** 10–11 min
+**Commands covered:** git config --global commit.gpgsign true, git config --global gpg.format ssh, git commit -S, git tag -s, git verify-commit, git verify-tag, git log --show-signature
+
+#### YouTube Title
+> Anyone Can Put Your Name on a Commit — Signing Proves It Was Actually You
+
+#### YouTube Description
+> A commit's author field is just a text string; anyone can type your name and email into it. Signing binds a real cryptographic identity to a commit's exact content, permanently. This episode covers both the GPG path and the newer, simpler SSH-key signing path, opens a signed commit with git cat-file to show exactly where the signature lives inside the object, and covers signed tags too.
+
+#### Outline
+| Time | Section |
+|------|---------|
+| 0:00 | Hook: any commit's author field is just a text string — anyone can claim to be you |
+| 1:00 | Recap: EP25 (tags) mentioned signed tags briefly; this episode does the whole thing, GPG and SSH signing |
+| 2:00 | GPG path: `git config --global user.signingkey <keyid>`, `git config --global commit.gpgsign true` |
+| 3:00 | SSH path (modern, simpler): `git config --global gpg.format ssh`, `git config --global user.signingkey ~/.ssh/id_ed25519.pub` |
+| 4:00 | `git commit -S -m "signed commit"` — commit as usual, GPG/SSH prompts for a signature |
+| 5:00 | `git log --show-signature` — "Good signature from..." verification inline with the log |
+| 5:45 | The signature lives INSIDE the commit object itself — `git cat-file -p <sha>` shows a `gpgsig` header block (callback to EP33) |
+| 6:45 | `git verify-commit <sha>` — standalone verification |
+| 7:15 | Signed tags: `git tag -s v1.0 -m "Release 1.0"` and `git verify-tag v1.0` |
+| 8:00 | What signing does NOT protect: it proves who committed, not that the code is bug-free or that the diff itself passed review |
+| 8:45 | GitHub's "Verified" badge is exactly this check, run server-side |
+| 9:15 | Recap: signing binds a cryptographic identity to a commit object's exact content, permanently |
+
+#### Key Visual Moments
+- `git cat-file -p` output growing a new `gpgsig` block on a signed commit vs. an unsigned sibling commit, both otherwise identical
+- `--show-signature` output lining up against the same commit node already on screen in the diagram
+
+---
+
+### EP 39 — Reference — Big Repos, Small Checkouts: Sparse Checkout and Partial Clone
+
+**visigit mode:** verbose
+**Target length:** 10–12 min
+**Commands covered:** git clone --filter=blob:none, git sparse-checkout init --cone, git sparse-checkout set, git sparse-checkout list, git sparse-checkout add, git sparse-checkout disable
+
+#### YouTube Title
+> Sparse Checkout and Partial Clone: Work in a 50-Project Monorepo Without Downloading All 50
+
+#### YouTube Description
+> Shallow clones (EP34) trim history depth. Sparse checkout and partial clone trim a completely different axis: which files exist on disk and which blobs ever get downloaded. This episode clones with --filter=blob:none so file contents fetch lazily, then narrows the working tree to one directory with sparse-checkout — while the full commit graph, for every project in the monorepo, stays completely intact and visible.
+
+#### Outline
+| Time | Section |
+|------|---------|
+| 0:00 | Hook: a monorepo with 50 top-level projects — you only work in one of them |
+| 1:00 | Recap EP34 (shallow clones): that trims HISTORY depth; this episode trims the WORKING TREE and object DOWNLOADS instead — a different axis entirely |
+| 2:00 | `git clone --filter=blob:none <repo>` — full commit history downloads, but file CONTENTS (blobs) download lazily on demand |
+| 3:00 | `git sparse-checkout init --cone` — switch to cone-mode sparse checkout |
+| 3:45 | `git sparse-checkout set services/api` — working tree collapses to just that directory |
+| 4:30 | `ls` — the other 49 project directories are simply gone from disk, though every commit that ever touched them is still in the object DAG |
+| 5:15 | Checking out a commit that touches an out-of-cone file: git fetches that one blob on demand (watch a quick fetch happen) |
+| 6:15 | `git sparse-checkout list` — see the current cone |
+| 6:45 | Widen it: `git sparse-checkout add services/billing` |
+| 7:15 | `git sparse-checkout disable` — back to a full working tree (blobs still fetched lazily under `--filter`) |
+| 8:00 | visigit note: the commit graph itself (refs, commits, trees) looks completely normal in verbose mode — sparse checkout and partial clone only affect which BLOBS exist locally and which files are materialized on disk, not the DAG shape |
+| 8:45 | Recap: shallow = less history (EP34), partial clone = fewer blobs, sparse checkout = smaller working tree — three independent knobs, often combined for huge repos |
+
+#### Key Visual Moments
+- The graph itself (commits/trees) rendering fully normal and complete in verbose mode, even though most blobs haven't been downloaded yet — makes visible that "the DAG" and "the file contents" are separate concerns
+- The working tree on disk shrinking to one directory while `git log --all` still shows full project history
+- A one-off blob fetch happening live the moment a sparse boundary is crossed
 
 ---
 
@@ -971,3 +1494,23 @@ When a test fails it almost always means a visigit bug would make the diagram in
 wrong. Git behaviour varies across versions (e.g. auto-creating `refs/remotes/origin/HEAD`),
 so the CI matrix runs the suite on multiple OS and Python versions; record lessons on a recent
 stable git and state the version on-screen.
+
+**Coverage status for the 15 new episodes added in this pass (EP03, EP10, EP12, EP15, EP20,
+EP21, EP23, EP24, EP26 bonus segment, EP34, EP35–EP39):** episodes whose key visual moment is a
+concrete, deterministic change to the rendered graph (EP03, EP10, EP12, EP15, EP21, EP23, EP24,
+EP34, and EP26's `--no-checkout` bonus segment) have `test_lessons.py` coverage — see the
+`TestLesson03...` through `TestLesson34...` classes added alongside this curriculum update.
+Episodes that are query-only or config-only and never change the DOT output at all (EP20 blame/
+pickaxe, EP35 config/aliases, EP36 gitattributes-as-workflow, EP37 rerere, EP38 signing) do not
+get dedicated lesson tests, for the same reason EP01 (setup) doesn't: there's no graph-shape
+claim to regression-test. EP39 (sparse checkout / partial clone) is exercised indirectly by the
+existing shallow/partial-object handling in `repo.py` but doesn't yet have a dedicated lesson
+test — local `--filter=blob:none` support varies by git version, so add one deliberately with a
+version guard before filming rather than as a blanket addition here.
+
+None of the 15 new episodes yet have `test_lessons_full.py` (exact node/edge set) or
+`git_oracle.py` differential coverage. That tier hand-derives the *complete* expected output and
+cross-checks it against an independent plumbing-based oracle — a substantially larger effort per
+episode than the presence checks above. Recommend adding it episode-by-episode as each one is
+actually scripted for filming, the same way the existing 25 episodes accumulated that coverage
+over time (see PR #56).

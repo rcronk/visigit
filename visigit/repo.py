@@ -248,8 +248,11 @@ class GitRepo:
         try:
             head_commit = repo.head.commit
             for diff in repo.index.diff(head_commit):
-                path = diff.b_path or diff.a_path
-                hexsha = diff.b_blob.hexsha if diff.b_blob else "0" * 40
+                path = diff.a_path or diff.b_path
+                # repo.index.diff(head_commit) puts the index (staged) content on the
+                # "a" side and the HEAD commit's content on the "b" side -- a_blob is
+                # the one about to be committed. a_blob is None for a staged deletion.
+                hexsha = diff.a_blob.hexsha if diff.a_blob else "0" * 40
                 staged.append(StagedFile(path=path, hexsha=hexsha))
         except ValueError:
             # Empty repo: every index entry is staged
