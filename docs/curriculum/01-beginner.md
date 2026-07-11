@@ -73,7 +73,7 @@ Git tracks files it already knows about and reports everything else as untracked
 | 3:45 | `git status` again — the ignored files vanish from the untracked list; the Untracked box shrinks to just `secrets.env` and `.gitignore` |
 | 4:30 | `git check-ignore -v build/app.log` — shows exactly which .gitignore line matched, and from which file |
 | 5:15 | The trap: `secrets.env` was committed BEFORE it was added to .gitignore — adding it now does nothing, it's still tracked |
-| 6:00 | `git rm --cached secrets.env` — removes it from the index only; the file stays on disk and reappears in the Untracked box |
+| 6:00 | `git rm --cached secrets.env` — removes it from the index only; the file stays on disk and reappears in the Untracked box. It briefly shows in BOTH boxes at once: Staged Changes gets a placeholder entry for the removal itself (nothing to commit yet), and Untracked gets the file back |
 | 6:45 | Add `secrets.env` to `.gitignore` now that it's untracked — this time it actually sticks |
 | 7:30 | `git clean -n` — dry run, lists exactly what would be deleted (ignored files are NOT included by default) |
 | 8:15 | `git clean -fd` — deletes every untracked file and directory; the Untracked box empties completely |
@@ -84,6 +84,7 @@ Git tracks files it already knows about and reports everything else as untracked
 - The Untracked box (verbose mode) shrinking the instant `.gitignore` takes effect
 - A previously-tracked file staying fully tracked — still reachable through the committed tree — even after being listed in `.gitignore`, until `git rm --cached` runs
 - `git rm --cached` moving a file's node out of the tracked-tree path and into the Untracked box without touching the working copy on disk
+- The instant of `git rm --cached`: the same file sitting in BOTH the Staged Changes box (a staged deletion — nothing to commit yet) and the Untracked box at once, until the deletion is actually committed
 - `git clean -fd` wiping the entire Untracked box in one shot
 
 ---

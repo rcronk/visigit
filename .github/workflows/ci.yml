@@ -27,6 +27,14 @@ jobs:
       - name: Format check
         run: ruff format --check .
 
+      - name: Coverage (must not drop below baseline)
+        run: |
+          pytest --cov=visigit --cov-report=term-missing --cov-fail-under=81
+          # Baseline recorded 2026-07-11 at 81.12%. If this fails on an intentional
+          # drop (e.g. new CLI/renderer code that's hard to unit test), raise
+          # coverage to compensate rather than lowering this number -- it's a
+          # floor, not a target.
+
       - name: Check for CRLF line endings
         run: |
           bad=$(git ls-files | xargs grep -lU $'\r' 2>/dev/null || true)

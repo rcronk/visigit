@@ -34,6 +34,7 @@ graphify update .             # build local knowledge graph (AST-only, no API ke
 ruff check .                  # lint
 ruff format --check .         # format check (use ruff format . to fix)
 pytest -v                     # run all tests
+pytest --cov=visigit --cov-report=term-missing --cov-fail-under=81  # coverage floor (CI-enforced; raise the floor when you raise coverage, never lower it to make a PR pass)
 ```
 
 System dependency: `graphviz` (`apt install graphviz` / `brew install graphviz`).

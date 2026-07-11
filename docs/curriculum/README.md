@@ -89,10 +89,16 @@ so the CI matrix runs the suite on multiple OS and Python versions; record lesso
 stable git and state the version on-screen.
 
 **Coverage status for the 15 new episodes added in this pass (EP03, EP10, EP12, EP15, EP20,
-EP21, EP23, EP24, EP26 bonus segment, EP34, EP35–EP39):** episodes whose key visual moment is a
-concrete, deterministic change to the rendered graph (EP03, EP10, EP12, EP15, EP21, EP23, EP24,
-EP34, and EP26's `--no-checkout` bonus segment) have `test_lessons.py` coverage — see the
-`TestLesson03...` through `TestLesson34...` classes added alongside this curriculum update.
+EP21, EP23, EP24, EP26 bonus segment, EP34, EP35–EP39):** the 9 episodes whose key visual
+moment is a concrete, deterministic change to the rendered graph (EP03, EP10, EP12, EP15, EP21,
+EP23, EP24, EP34, and EP26's `--no-checkout` bonus segment, which was already covered by the
+pre-existing bisect oracle test) now have the full two-tier coverage the original 25 episodes
+have: `test_lessons.py` key node/edge presence, **and** `test_lessons_full.py` exact node/edge
+set checks cross-validated against the independent `git_oracle.py` plumbing oracle via its
+autouse fixture. See the `TestIgnoringAndCleaningFull`, `TestOrphanBranchesFull`,
+`TestRebaseConflictsFull`, `TestForkWorkflowFull`, `TestPartialCommitsFull`, `TestMergeSquashFull`,
+`TestRebaseOntoFull`, and `TestShallowClonesFull` classes in `test_lessons_full.py`.
+
 Episodes that are query-only or config-only and never change the DOT output at all (EP20 blame/
 pickaxe, EP35 config/aliases, EP36 gitattributes-as-workflow, EP37 rerere, EP38 signing) do not
 get dedicated lesson tests, for the same reason EP01 (setup) doesn't: there's no graph-shape
@@ -100,10 +106,3 @@ claim to regression-test. EP39 (sparse checkout / partial clone) is exercised in
 existing shallow/partial-object handling in `repo.py` but doesn't yet have a dedicated lesson
 test — local `--filter=blob:none` support varies by git version, so add one deliberately with a
 version guard before filming rather than as a blanket addition here.
-
-None of the 15 new episodes yet have `test_lessons_full.py` (exact node/edge set) or
-`git_oracle.py` differential coverage. That tier hand-derives the *complete* expected output and
-cross-checks it against an independent plumbing-based oracle — a substantially larger effort per
-episode than the presence checks above. Recommend adding it episode-by-episode as each one is
-actually scripted for filming, the same way the existing 25 episodes accumulated that coverage
-over time (see PR #56).
