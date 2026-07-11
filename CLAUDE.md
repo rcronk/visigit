@@ -79,6 +79,15 @@ System dependency: `graphviz` (`apt install graphviz` / `brew install graphviz`)
 | `feature/*` → `develop` | **Squash and merge** |
 | `develop` → `main` | **Create a merge commit** |
 
+## Releasing to PyPI
+
+Versioning is fully automatic (see issue #60) -- never hand-edit a version number anywhere.
+
+- The package version comes from `setuptools-scm` at build time, derived from the latest git tag. There is no `version` field in `pyproject.toml` to forget to bump.
+- On every push to `main`, the `publish` workflow job computes the next version itself: lines changed in `visigit/` since the last tag (>= 200 -> minor, else -> patch), or major if the merging PR carries the `breaking-change` label. It tags and publishes to PyPI, then creates a GitHub release with auto-generated notes (this is the changelog -- see the repo's Releases page).
+- A required `develop` -> `main` PR check (`breaking-change gate`) diffs `cli.py`'s argparse surface against the last release and fails the PR if a flag looks removed/renamed/narrowed. Resolve it by adding the `breaking-change` label (confirms it -- next release is a major bump) or `not-breaking` (false positive) before merging.
+- If a release gets blocked or needs redoing, re-run the `CI` workflow manually via `workflow_dispatch` with the `bump_override` input (`major`/`minor`/`patch`) to force a specific bump instead of the automatic decision.
+
 ## graphify
 
 This project has a knowledge graph at graphify-out/ with god nodes, community structure, and cross-file relationships.
