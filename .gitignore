@@ -10,6 +10,9 @@ build/
 *.egg
 .eggs/
 
+# setuptools-scm generated version file
+visigit/_version.py
+
 # Virtual environments
 .venv/
 venv/
@@ -44,9 +47,10 @@ coverage.xml
 # graphify generated output (regenerate locally with: graphify update .)
 graphify-out/
 
-# gitplot output files (default output-path and HTML viewer)
+# visigit output files (default output-path and HTML viewer)
 # Intentionally specific — docs/screenshots/*.svg are tracked and must not be ignored.
-gitplot.svg
-gitplot.pdf
-gitplot.png
-gitplot.html
+visigit.svg
+visigit.pdf
+visigit.png
+visigit.html
+visigit.md
