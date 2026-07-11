@@ -13,6 +13,7 @@ Run with:
 
 from __future__ import annotations
 
+import os
 import subprocess
 
 from visigit.builder import GraphBuilder
@@ -1961,7 +1962,17 @@ class TestLesson12RebaseConflicts:
 
         repo.write("file.txt", "resolved version")
         repo._run(["git", "add", "file.txt"])
-        repo._run(["git", "rebase", "--continue"])
+        # GIT_EDITOR=true: recent git runs every rebase through the sequencer, and
+        # --continue tries to open $EDITOR to confirm the commit message. There's no
+        # editor available in a non-interactive test run, so tell it to accept the
+        # message it already has.
+        subprocess.check_call(
+            ["git", "rebase", "--continue"],
+            cwd=str(repo.path),
+            env={**os.environ, "GIT_EDITOR": "true"},
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
+        )
 
         new_sha = repo.rev_parse("feature")
         assert new_sha != feature_sha, (
@@ -2076,7 +2087,10 @@ class TestLesson21PartialCommits:
 
         # Further, unstaged change on top: an unrelated debug print.
         repo.write("app.py", "def run():\n    return fix()\nprint('debug')\n")
-        unstaged_sha = repo._run(["git", "hash-object", "app.py"])
+        # --no-filters: visigit's workspace hexsha is the raw on-disk bytes (see
+        # GitRepo._compute_blob_hash / test_workspace_hexsha_is_raw_blob_sha), not the
+        # autocrlf-filtered content plain `git hash-object` would compute on Windows.
+        unstaged_sha = repo._run(["git", "hash-object", "--no-filters", "app.py"])
 
         assert staged_sha != unstaged_sha
 
@@ -2099,7 +2113,10 @@ class TestLesson21PartialCommits:
         repo.write("app.py", "def run():\n    return fix()\n")
         repo._run(["git", "add", "app.py"])
         repo.write("app.py", "def run():\n    return fix()\nprint('debug')\n")
-        unstaged_sha = repo._run(["git", "hash-object", "app.py"])
+        # --no-filters: visigit's workspace hexsha is the raw on-disk bytes (see
+        # GitRepo._compute_blob_hash / test_workspace_hexsha_is_raw_blob_sha), not the
+        # autocrlf-filtered content plain `git hash-object` would compute on Windows.
+        unstaged_sha = repo._run(["git", "hash-object", "--no-filters", "app.py"])
 
         # Commit directly (not via repo.commit(), which would `git add -A` and
         # re-stage the debug-print hunk, defeating the point of this lesson).

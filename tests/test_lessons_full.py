@@ -3,7 +3,7 @@
 Where ``tests/test_lessons.py`` asserts only the *key* nodes/edges for each
 lesson, this suite asserts the **complete** diagram: the exact set of nodes and
 the exact set of (from, to, label) edges visigit produces for each git state in
-``docs/curriculum.md``.  Both *missing* and *extra/phantom* elements fail.
+``docs/curriculum/``.  Both *missing* and *extra/phantom* elements fail.
 
 Ground truth is derived by reasoning about git semantics, not by blessing the
 tool's output -- so a bug that adds a stray node, draws an extra edge, or
