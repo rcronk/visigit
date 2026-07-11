@@ -4,7 +4,10 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from visigit.renderer import _default_html, _write_display_html
+import graphviz
+
+import visigit.renderer as renderer_mod
+from visigit.renderer import Renderer, _default_html, _write_display_html
 
 
 class TestDisplayHtml:
@@ -48,3 +51,160 @@ class TestDisplayHtml:
         assert "onload" in html
         assert "createElement('object')" not in html
         assert 'createElement("object")' not in html
+
+    def test_falls_back_to_default_html_when_bundled_template_unreadable(
+        self, tmp_path: Path, monkeypatch
+    ) -> None:
+        def raiser(_pkg):
+            raise ModuleNotFoundError("no such package")
+
+        monkeypatch.setattr(renderer_mod.importlib.resources, "files", raiser)
+        html_path = tmp_path / "display.html"
+        _write_display_html(html_path, "custom.svg")
+        html = html_path.read_text(encoding="utf-8")
+        assert "custom.svg" in html
+        assert "new Image()" in html  # matches _default_html's contract
+
+
+def _small_digraph() -> graphviz.Digraph:
+    dg = graphviz.Digraph()
+    dg.node("a")
+    dg.node("b")
+    dg.edge("a", "b")
+    return dg
+
+
+class TestRendererRender:
+    def test_render_svg_writes_file(self, tmp_path: Path) -> None:
+        out = tmp_path / "out.svg"
+        r = Renderer(output_path=str(out), output_format="svg", viewer="none")
+
+        result = r.render(_small_digraph())
+
+        assert result == out
+        assert out.exists()
+        assert out.read_bytes()
+
+    def test_render_mermaid_writes_flowchart(self, tmp_path: Path) -> None:
+        out = tmp_path / "out.md"
+        r = Renderer(output_path=str(out), output_format="mermaid", viewer="none")
+
+        result = r.render(_small_digraph())
+
+        assert result == out
+        assert "flowchart" in out.read_text(encoding="utf-8")
+
+    def test_render_creates_missing_parent_directories(self, tmp_path: Path) -> None:
+        out = tmp_path / "nested" / "dir" / "out.svg"
+        r = Renderer(output_path=str(out), output_format="svg", viewer="none")
+
+        r.render(_small_digraph())
+
+        assert out.exists()
+
+
+class TestOpenViewerDispatch:
+    def test_none_viewer_calls_nothing(self, tmp_path: Path, monkeypatch) -> None:
+        r = Renderer(output_path=str(tmp_path / "out.svg"), viewer="none")
+        called: list = []
+        monkeypatch.setattr(r, "_open_html", lambda p: called.append(("html", p)))
+        monkeypatch.setattr(r, "_open_auto", lambda p: called.append(("auto", p)))
+
+        r.open_viewer(tmp_path / "out.svg")
+
+        assert called == []
+
+    def test_html_viewer_dispatches_to_open_html(self, tmp_path: Path, monkeypatch) -> None:
+        r = Renderer(output_path=str(tmp_path / "out.svg"), viewer="html")
+        called: list = []
+        monkeypatch.setattr(r, "_open_html", lambda p: called.append(("html", p)))
+        monkeypatch.setattr(r, "_open_auto", lambda p: called.append(("auto", p)))
+
+        r.open_viewer(tmp_path / "out.svg")
+
+        assert called == [("html", tmp_path / "out.svg")]
+
+    def test_auto_viewer_dispatches_to_open_auto(self, tmp_path: Path, monkeypatch) -> None:
+        r = Renderer(output_path=str(tmp_path / "out.svg"), viewer="auto")
+        called: list = []
+        monkeypatch.setattr(r, "_open_html", lambda p: called.append(("html", p)))
+        monkeypatch.setattr(r, "_open_auto", lambda p: called.append(("auto", p)))
+
+        r.open_viewer(tmp_path / "out.svg")
+
+        assert called == [("auto", tmp_path / "out.svg")]
+
+
+class TestOpenHtml:
+    def test_writes_html_and_opens_once_then_is_a_noop(self, tmp_path: Path, monkeypatch) -> None:
+        svg_path = tmp_path / "visigit.svg"
+        svg_path.write_text("<svg></svg>", encoding="utf-8")
+        r = Renderer(output_path=str(svg_path), viewer="html")
+        opened: list = []
+        monkeypatch.setattr(r, "_open_auto", lambda p: opened.append(p))
+
+        r._open_html(svg_path)
+        html_path = tmp_path / "visigit.html"
+        assert html_path.exists()
+        assert opened == [html_path]
+        assert r._html_written is True
+
+        # Second call: no-op -- SVG polling in the already-open page handles updates.
+        r._open_html(svg_path)
+        assert opened == [html_path]
+
+
+class TestOpenAuto:
+    def _patch_popen(self, monkeypatch) -> dict:
+        captured: dict = {}
+
+        def fake_popen(cmd, **kwargs):
+            captured["cmd"] = cmd
+
+            class _P:
+                pass
+
+            return _P()
+
+        monkeypatch.setattr(renderer_mod.subprocess, "Popen", fake_popen)
+        return captured
+
+    def test_darwin_uses_open(self, tmp_path: Path, monkeypatch) -> None:
+        r = Renderer(output_path=str(tmp_path / "out.svg"), viewer="auto")
+        monkeypatch.setattr(renderer_mod.platform, "system", lambda: "Darwin")
+        captured = self._patch_popen(monkeypatch)
+
+        r._open_auto(tmp_path / "out.svg")
+
+        assert captured["cmd"][0] == "open"
+
+    def test_windows_uses_start(self, tmp_path: Path, monkeypatch) -> None:
+        r = Renderer(output_path=str(tmp_path / "out.svg"), viewer="auto")
+        monkeypatch.setattr(renderer_mod.platform, "system", lambda: "Windows")
+        captured = self._patch_popen(monkeypatch)
+
+        r._open_auto(tmp_path / "out.svg")
+
+        assert captured["cmd"][0] == "start"
+
+    def test_linux_uses_xdg_open(self, tmp_path: Path, monkeypatch) -> None:
+        r = Renderer(output_path=str(tmp_path / "out.svg"), viewer="auto")
+        monkeypatch.setattr(renderer_mod.platform, "system", lambda: "Linux")
+        captured = self._patch_popen(monkeypatch)
+
+        r._open_auto(tmp_path / "out.svg")
+
+        assert captured["cmd"][0] == "xdg-open"
+
+    def test_missing_binary_logs_warning_instead_of_raising(
+        self, tmp_path: Path, monkeypatch
+    ) -> None:
+        r = Renderer(output_path=str(tmp_path / "out.svg"), viewer="auto")
+        monkeypatch.setattr(renderer_mod.platform, "system", lambda: "Linux")
+
+        def raiser(cmd, **kwargs):
+            raise FileNotFoundError("no xdg-open")
+
+        monkeypatch.setattr(renderer_mod.subprocess, "Popen", raiser)
+
+        r._open_auto(tmp_path / "out.svg")  # must not raise
