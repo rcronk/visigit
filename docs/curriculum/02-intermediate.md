@@ -17,7 +17,7 @@
 Merge and rebase solve the identical problem — integrating diverged work — with opposite philosophies: merge preserves exactly what happened (including the diamond shape), while rebase rewrites what happened into a story that never diverged in the first place. Neither is "correct"; they're a tradeoff between historical honesty and readability, and the rest of the advanced tier (interactive rebase, --onto, rerere) only makes sense once this tradeoff is clear.
 
 #### YouTube Title
-> git merge vs git rebase: Same Result, Completely Different Graph — See Both Live
+> git merge vs git rebase: Watch Two Different Graphs
 
 #### YouTube Description
 > Merge and rebase both get your changes integrated, but they leave completely different histories behind. This video runs both operations on identical repos and shows you the graphs side by side: a merge creates a diamond with a merge commit; a rebase replays your commits with new SHAs onto a straight line. By the end you'll know which to choose and why.
@@ -57,7 +57,7 @@ Merge and rebase solve the identical problem — integrating diverged work — w
 Because rebase replays your commits one at a time instead of integrating them all at once like a merge, a single line of disputed code can produce a conflict on every commit that touches it — which is why rebase conflicts feel repetitive in a way merge conflicts don't. Understanding that each replay is its own mini-merge is what turns "why do I keep hitting the same conflict" into an expected, manageable part of the process instead of a sign something's gone wrong.
 
 #### YouTube Title
-> Rebase Conflicts Feel Like Whack-a-Mole — Here's Why, and How to Get Through One
+> git rebase Conflicts: Watch Why They Keep Repeating
 
 #### YouTube Description
 > A merge conflict stops you once. A rebase conflict can stop you once PER COMMIT being replayed, because rebase applies your commits one at a time. This video walks a real two-commit rebase conflict start to finish — resolving, continuing, resolving again — and shows the three escape hatches: --continue, --skip, and --abort. You'll see exactly why the same conflict can reappear and what visigit shows you while it's happening.
@@ -100,7 +100,7 @@ Because rebase replays your commits one at a time instead of integrating them al
 Your local main and origin/main are two separate, independently-moving pointers, and the second one is nothing but a cached snapshot of what the remote looked like at your last fetch — it does not update itself. This distinction is the root of most "but I thought I had the latest code" confusion, and once origin/* refs are visibly separate objects in the graph instead of an abstract idea, fetch/pull/push stop being magic syncing and become exactly what they are: explicit pointer updates you control.
 
 #### YouTube Title
-> origin/main Is Not main — How git fetch, pull, and push Move the Remote Tracking Pointer
+> origin/main Is Not main: Watch fetch, pull, push Work
 
 #### YouTube Description
 > There are actually two "main" branches in a typical repo: your local main and origin/main (the remote tracking ref). Most people conflate them until something goes wrong. This video uses visigit to show you both refs in the same graph, what happens when they drift apart, and exactly what fetch, pull, and push do to each pointer.
@@ -139,7 +139,7 @@ Your local main and origin/main are two separate, independently-moving pointers,
 Every push, fetch, and pull you've run so far has been a black box — you've seen your side of the exchange but never the other end. Watching a real bare repository update live, side by side with your working copy, turns "the remote" from an abstract concept into a second, equally real graph that commits move between, which is the mental model every later remote-workflow episode assumes you already have.
 
 #### YouTube Title
-> See Both Sides of git push/fetch: Visualize Your Repo AND origin Side by Side
+> git push and fetch: Watch Your Repo AND origin Update Live
 
 #### YouTube Description
 > origin/main is a snapshot inside your repo — but where's the ACTUAL origin? In this video we put a bare "origin" repository on the same machine and run a second `visigit --monitor` on it, so you watch BOTH graphs at once. Now push, fetch, and pull aren't mysterious: you see commits leave your repo and land in origin, and origin/main catch up — live, side by side.
@@ -178,7 +178,7 @@ Every push, fetch, and pull you've run so far has been a black box — you've se
 The single-remote model from EP13 breaks down the moment you contribute to a project you don't have write access to — you need one remote that receives your work (origin, your fork) and a separate one that's the actual source of truth (upstream). This episode exists because the fork workflow is how most real open-source contribution happens, and conflating origin with "the project" is the single most common point of confusion for anyone's first pull request.
 
 #### YouTube Title
-> origin Isn't Always the Real Project — Meet upstream and the Fork Workflow
+> Git Fork Workflow: origin vs upstream, Visualized
 
 #### YouTube Description
 > Contributing to an open-source project means juggling TWO remotes: origin (your fork) and upstream (the real project). Most tutorials gloss over this. This video shows both full sets of remote-tracking refs in one visigit graph, keeps your fork's main in sync with upstream, and walks through the exact commands for a clean feature-branch contribution — without ever pushing directly to upstream.
@@ -220,7 +220,7 @@ The single-remote model from EP13 breaks down the moment you contribute to a pro
 git stash doesn't have its own storage mechanism — it creates a genuine commit object, just one that most tools (and normal-mode visigit) don't show you by default. Realizing that a stash is a commit like any other, hanging off a ref called refs/stash, explains everything about how it behaves: why it has a SHA, why multiple stashes stack like a list, and why it isn't magic.
 
 #### YouTube Title
-> git stash Creates a Real Commit — You Just Can't See It in Normal Mode
+> git stash Creates a Real Commit — Watch It Appear
 
 #### YouTube Description
 > git stash feels like a magic shelf that saves your work temporarily. What it actually does is create a special commit hanging off a ref called refs/stash — and that commit is only visible in visigit's verbose mode. This video shows you the hidden object, how stash entries stack up, and what pop, apply, and drop each do to the graph.
@@ -260,7 +260,7 @@ git stash doesn't have its own storage mechanism — it creates a genuine commit
 A commit's SHA is a hash of its content, and its content includes its parent's SHA — so replaying the exact same change onto a different parent necessarily produces a different SHA, even though nothing about the change itself changed. This is the clearest hands-on proof in the whole series that git identity is about content and lineage together, not just content, and it's the same fact that explains why rebase and amend also produce new SHAs.
 
 #### YouTube Title
-> git cherry-pick Copies a Commit — But the SHA Changes Every Time. Here's Why.
+> git cherry-pick: Watch the Commit SHA Always Change
 
 #### YouTube Description
 > cherry-pick lets you take one specific commit from any branch and replay it somewhere else. But the resulting commit always has a different SHA — even though the changes are identical. This video explains why using visigit: the parent commit is different, so the content of the commit object is different, so the SHA is different. You'll see it happen live.
@@ -300,7 +300,7 @@ A commit's SHA is a hash of its content, and its content includes its parent's S
 git almost never deletes a commit the instant it becomes unreachable — it just stops being able to find it through any ref, while the object itself sits untouched in .git/objects for weeks. reflog is the log of everywhere HEAD has pointed, which means "I lost my commits" is almost always actually "I lost the address," and this episode is about how to look the address back up.
 
 #### YouTube Title
-> You Didn't Lose Your Commits — git reflog Is Git's Secret Safety Net
+> git reflog: Watch "Lost" Commits Reappear
 
 #### YouTube Description
 > You ran git reset --hard or git rebase and now your commits are "gone." They're not — git keeps every commit in the object store for at least 30 days. git reflog shows you the history of where HEAD has been, giving you the SHA of every commit you've ever had checked out. This video shows you how to find and recover them using visigit to confirm the work is really still there.
@@ -341,7 +341,7 @@ git almost never deletes a commit the instant it becomes unreachable — it just
 ORIG_HEAD, MERGE_HEAD, FETCH_HEAD, CHERRY_PICK_HEAD, and BISECT_HEAD are not five unrelated features to memorize — they're the same pattern repeated five times: before doing something to HEAD that might need undoing or referencing later, git writes down where things stood in an ordinary ref file. Recognizing that pattern means the next unfamiliar ALL_CAPS_HEAD you see in git's output won't need a new mental model, just the one you already have.
 
 #### YouTube Title
-> The Hidden Refs That Save You: ORIG_HEAD, FETCH_HEAD, and git's Other Safety Nets
+> ORIG_HEAD, FETCH_HEAD: Watch Git's Hidden Safety Refs
 
 #### YouTube Description
 > You've seen them flash by: ORIG_HEAD after a reset, MERGE_HEAD during a conflict, FETCH_HEAD after a fetch. These are git's pointer files — special refs git writes so YOU (and git) can recover and reason about what just happened. Most tools hide them; visigit shows them. This video gathers them in one place so you understand the safety net under every "dangerous" command.
@@ -380,7 +380,7 @@ ORIG_HEAD, MERGE_HEAD, FETCH_HEAD, CHERRY_PICK_HEAD, and BISECT_HEAD are not fiv
 Most of what you do with git day to day isn't changing history, it's asking questions about history that already exists — who wrote this, when did this string first appear, why does this line look the way it does. This episode is a deliberate change of pace from "watch the graph change" to "watch the search narrow," because archaeology skills are just as core to using git well as the mutating commands are.
 
 #### YouTube Title
-> Who Wrote This Line, and Why? git blame, log -S, and log --grep Explained
+> git blame, log -S, and log --grep: See Who Changed What
 
 #### YouTube Description
 > Not every git episode is about changing the graph — sometimes you just need to search it. This video covers the three tools every developer eventually needs: git log --grep and --author to filter commits by metadata, git log -S (the "pickaxe") to find exactly when a string was added or removed, and git blame to see who last touched every line. We use a buried one-line bug to show all three working together to pin down the exact commit that caused it.
@@ -421,7 +421,7 @@ Most of what you do with git day to day isn't changing history, it's asking ques
 The index isn't required to match either your last commit or your current working tree exactly — it's a genuinely independent third state that you can shape by hand, one hunk at a time. Seeing the same file exist simultaneously as two different blobs, one staged and one not, is the clearest possible proof that "staging" is a real, separate editing step and not just a formality before commit.
 
 #### YouTube Title
-> git add -p Splits One File Into Two Blobs — Watch It Happen in Verbose Mode
+> git add -p: Watch One File Split Into Two Blobs
 
 #### YouTube Description
 > git add -p lets you stage half a file's changes and leave the rest for later. Most people run it on faith. This video shows you exactly what it does to the object store: the SAME file appears in visigit's verbose mode in BOTH the Staged box and the Unstaged box at once, each with a DIFFERENT blob SHA. Commit, and only the staged blob becomes part of history — the rest stays right where you left it.

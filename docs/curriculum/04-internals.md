@@ -17,7 +17,7 @@
 Every git command you've run in this series has ultimately been manipulating exactly four object types — blob, tree, commit, tag — hashed and stored by content. This episode is the one where the abstraction finally opens up: "commit" stops being a verb you perform and becomes a noun you can point at, with a SHA, a tree, and a parent, exactly like every other object in the store.
 
 #### YouTube Title
-> Inside a git commit: blob, tree, commit Objects Explained with a Live Object Graph
+> Watch Inside a git commit: blob, tree, and commit
 
 #### YouTube Description
 > Every git commit creates three types of objects: blobs (file contents), trees (directory listings), and a commit object (metadata + pointer to root tree). This video uses visigit's verbose mode to show you all three appearing in the graph the moment you run git commit — and explains the fourth object type (annotated tags) while it's fresh. By the end you'll understand exactly what git is storing on disk.
@@ -58,7 +58,7 @@ Every git command you've run in this series has ultimately been manipulating exa
 Including one repository inside another sounds like one problem, but git offers two genuinely different solutions to it: a submodule stores a pointer (a gitlink) to another repo's commit, while a subtree merges that repo's actual files into yours as ordinary blobs. They look similar from the command line and are almost opposite at the object level, which is exactly why picking between them by habit instead of understanding causes so much team friction.
 
 #### YouTube Title
-> Submodules vs Subtrees: One Stores a Pointer, the Other Merges the Files — See the Difference
+> git Submodule vs Subtree: See Pointer vs Merged Files
 
 #### YouTube Description
 > Two ways to include one repo inside another, and they couldn't be more different under the hood. A submodule stores a gitlink — a pointer to a specific commit in another repo — which visigit shows as a distinct node. A subtree merges the other repo's files directly into your tree as ordinary blobs, with its history as a second parent. This video opens both in verbose mode so you can see exactly what git stores in each case.
@@ -98,7 +98,7 @@ Including one repository inside another sounds like one problem, but git offers 
 Content-addressable storage means identical content always hashes to the identical object, no matter how many commits or files reference it — git isn't storing a thousand copies of your README, it's storing one blob with a thousand pointers to it. This is the single idea that makes git's storage efficient at any scale, and it's also why a rename with no content change is nearly free.
 
 #### YouTube Title
-> Same File Content = Same SHA: How Git Avoids Storing Duplicates Across Commits
+> Same File, Same SHA: Watch Git Avoid Storing Duplicates
 
 #### YouTube Description
 > Every git object is identified by the SHA of its content. This means if you commit a file and don't change it, the next commit reuses exactly the same blob object — the same node in the graph. This video makes content-addressable storage visible by showing two commits in verbose mode sharing a blob node, and then showing what happens when you do change the file.
@@ -137,7 +137,7 @@ Content-addressable storage means identical content always hashes to the identic
 "git add stages the file" undersells what actually happens: git computes a hash of your content and writes a real blob object to .git/objects immediately, before you've committed anything. The staging area isn't a to-do list of filenames, it's a list of blob SHAs — and once you've watched that blob appear in the object store the instant you run add, the difference between the working tree, the index, and HEAD stops being three abstract states and becomes three concrete sets of pointers you can inspect.
 
 #### YouTube Title
-> git add Creates a Blob Object Before You Even Commit — Watch It Appear in Verbose Mode
+> Watch git add Create a Blob Object Before You Commit
 
 #### YouTube Description
 > Most tutorials say "git add stages the file." What it actually does is compute the SHA of your file's content, write a blob object to .git/objects, and record the SHA in the index. The blob exists even before you commit. visigit's verbose mode makes this visible: the staged file appears in the graph with its blob SHA the moment you run git add — no commit required.
@@ -178,7 +178,7 @@ Content-addressable storage means identical content always hashes to the identic
 Every diagram this series has drawn is a picture of real files sitting in .git/objects, and this episode is where you stop trusting the picture and go read the bytes yourself. cat-file, hash-object, and a raw ls of the object directory are the ground truth that everything else in the series has been representing — seeing the same SHA in the terminal and in the diagram is the moment the abstraction fully collapses into "it's just files on disk."
 
 #### YouTube Title
-> What's Actually Inside .git/objects? Unpacking Blobs, Trees, and Commits with git cat-file
+> git cat-file: See What's Actually Inside .git/objects
 
 #### YouTube Description
 > You've seen the object graph in visigit. Now let's open the objects themselves. git cat-file -p <sha> prints the raw content of any git object. In this video we crack open blobs, trees, and commits in the terminal alongside the verbose diagram — showing you exactly what bytes are stored on disk and how git's SHA hash is computed. We also explain how pack files compress thousands of loose objects into an efficient bundle.
@@ -220,7 +220,7 @@ Every diagram this series has drawn is a picture of real files sitting in .git/o
 A shallow clone's oldest commit renders with no parent, exactly like a true repository root or an orphan branch — but it's neither; it's an honest gap where parent objects were deliberately never downloaded. Recognizing that "parentless in the graph" doesn't always mean "root of history" is what keeps a shallow clone from looking like data corruption, and understanding the boundary mechanism is what makes fetch --unshallow's "graph grows backward" moment make sense instead of feeling like magic.
 
 #### YouTube Title
-> Shallow Clones: How git clone --depth 1 Fakes a Repo With No History
+> git clone --depth 1: Watch a Shallow Clone Fake History
 
 #### YouTube Description
 > git clone --depth 1 downloads a huge repo almost instantly by simply not fetching most of its history. But the oldest commit you DO have still needs to render as a valid DAG node — so git fakes it as parentless, even though it isn't really the repo's root. This video shows that fake boundary commit live in visigit, opens the raw .git/shallow file that makes it possible, and watches the graph grow backward the instant you run git fetch --unshallow.
