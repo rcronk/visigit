@@ -18,6 +18,9 @@ jobs:
         with:
           python-version: "3.11"
 
+      - name: Install system graphviz
+        run: sudo apt-get install -y graphviz
+
       - name: Install dev dependencies
         run: pip install -e ".[dev]"
 
@@ -26,6 +29,15 @@ jobs:
 
       - name: Format check
         run: ruff format --check .
+
+      - name: Coverage (must not drop below baseline)
+        run: |
+          pytest --cov=visigit --cov-report=term-missing --cov-fail-under=92
+          # Baseline recorded 2026-07-11 at 92.61% (cli.py 98.57%, renderer.py
+          # 100%, repo.py 89.32%, builder.py 94.47%, mermaid.py 93.81%,
+          # monitor.py 93.65%). If this fails on an intentional drop (e.g. new
+          # code that's hard to unit test), raise coverage to compensate rather
+          # than lowering this number -- it's a floor, not a target.
 
       - name: Check for CRLF line endings
         run: |

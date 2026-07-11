@@ -197,7 +197,7 @@ a1730" color="0.556 1.000 1.000" fillcolor="0.556 0.100 1.000" penwidth=2 style=
 	"112885a309337593323175787051795afbcd2ad7" -> "790db164f18098ef413853e56f7d93e70a2c187a" [label=parent]
 	"Staged Changes" [label="Staged Changes" color="0.667 1.000 1.000" fillcolor="0.667 0.100 1.000" penwidth=2 style=filled]
 	"staged|index_file.txt" [label="index_file.txt
-00000" color="0.667 1.000 1.000" fillcolor="0.667 0.100 1.000" penwidth=2 style=filled]
+35088" color="0.667 1.000 1.000" fillcolor="0.667 0.100 1.000" penwidth=2 style=filled]
 	"Staged Changes" -> "staged|index_file.txt" [label="index_file.txt"]
 	"Unstaged Changes" [label="Unstaged Changes" color="0.778 1.000 1.000" fillcolor="0.778 0.100 1.000" penwidth=2 style=filled]
 	"unstaged|develop.txt" [label="develop.txt

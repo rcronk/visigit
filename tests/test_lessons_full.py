@@ -3,7 +3,7 @@
 Where ``tests/test_lessons.py`` asserts only the *key* nodes/edges for each
 lesson, this suite asserts the **complete** diagram: the exact set of nodes and
 the exact set of (from, to, label) edges visigit produces for each git state in
-``docs/curriculum.md``.  Both *missing* and *extra/phantom* elements fail.
+``docs/curriculum/``.  Both *missing* and *extra/phantom* elements fail.
 
 Ground truth is derived by reasoning about git semantics, not by blessing the
 tool's output -- so a bug that adds a stray node, draws an extra edge, or
@@ -1867,3 +1867,530 @@ class TestEP22SubtreeFull:
         for p in parents:
             assert (head, p, "parent") in edges
         # Exhaustive correctness is enforced by the autouse oracle cross-check.
+
+
+# ---------------------------------------------------------------------------
+# EP 03 (curriculum) -- Ignoring and Cleaning
+#
+# Mode: verbose.  .gitignore only keeps NEW files out of the Untracked box; a
+# file git already tracks is unaffected.  git rm --cached stages the removal
+# (a placeholder all-zero blob in Staged Changes, since there is no new content)
+# and simultaneously makes the file reappear in Untracked, since the working
+# copy is left on disk.
+# ---------------------------------------------------------------------------
+
+
+class TestIgnoringAndCleaningFull:
+    def test_gitignored_file_excluded_from_untracked_box(self, repo: RepoTools) -> None:
+        repo.write("keep.txt")
+        c = repo.commit("base")
+        tree = repo.rev_parse(f"{c}^{{tree}}")
+        blob = repo.rev_parse(f"{c}:keep.txt")
+        repo.write("app.log", "log data")
+        repo.write(".gitignore", "*.log\n")
+
+        nodes, edges, _ = full_graph(str(repo.path), mode="verbose")
+        expected_nodes = {
+            "HEAD",
+            "refs/heads/main",
+            c,
+            tree,
+            blob,
+            "Untracked",
+            "untracked|.gitignore",
+        }
+        expected_edges = {
+            ("HEAD", "refs/heads/main", "HEAD"),
+            ("refs/heads/main", c, "branch"),
+            (c, tree, "tree"),
+            (tree, blob, "keep.txt"),
+            ("Untracked", "untracked|.gitignore", ".gitignore"),
+        }
+        assert_exact(nodes, edges, expected_nodes, expected_edges, "gitignore excludes app.log")
+
+    def test_rm_cached_stages_deletion_and_untracks_the_file(self, repo: RepoTools) -> None:
+        """git rm --cached both stages a deletion (Staged Changes) AND makes the
+        file reappear in Untracked -- it is simultaneously "about to be removed
+        from history" and "still sitting on disk, unknown to git" until commit."""
+        repo.write("secrets.env", "API_KEY=x")
+        c = repo.commit("add secrets")
+        tree = repo.rev_parse(f"{c}^{{tree}}")
+        blob = repo.rev_parse(f"{c}:secrets.env")
+        repo._run(["git", "rm", "--cached", "secrets.env"])
+
+        nodes, edges, _ = full_graph(str(repo.path), mode="verbose")
+        expected_nodes = {
+            "HEAD",
+            "refs/heads/main",
+            c,
+            tree,
+            blob,
+            "Staged Changes",
+            "staged|secrets.env",
+            "Untracked",
+            "untracked|secrets.env",
+        }
+        expected_edges = {
+            ("HEAD", "refs/heads/main", "HEAD"),
+            ("refs/heads/main", c, "branch"),
+            (c, tree, "tree"),
+            (tree, blob, "secrets.env"),
+            ("Staged Changes", "staged|secrets.env", "secrets.env"),
+            ("Untracked", "untracked|secrets.env", "secrets.env"),
+        }
+        assert_exact(nodes, edges, expected_nodes, expected_edges, "rm --cached")
+        assert (repo.path / "secrets.env").exists(), "git rm --cached must leave the file on disk"
+
+
+# ---------------------------------------------------------------------------
+# EP 10 (curriculum) -- Orphan Branches
+#
+# Mode: normal + branch.  git checkout --orphan starts a branch with zero
+# parents and zero shared history with any other branch in the repo: no
+# parent edge in normal mode, no topology edge at all in branch mode.
+# ---------------------------------------------------------------------------
+
+
+class TestOrphanBranchesFull:
+    def test_orphan_commit_disconnected_in_normal_and_branch_mode(self, repo: RepoTools) -> None:
+        repo.write("a.txt")
+        main_sha = repo.commit("main commit")
+        repo._run(["git", "checkout", "--orphan", "gh-pages"])
+        repo._run(["git", "rm", "-rf", "."])
+        repo.write("index.html")
+        orphan_sha = repo.commit("Initial gh-pages commit")
+
+        nodes, edges, _ = full_graph(str(repo.path), mode="normal")
+        expected_nodes = {
+            "HEAD",
+            "refs/heads/main",
+            "refs/heads/gh-pages",
+            main_sha,
+            orphan_sha,
+        }
+        expected_edges = {
+            ("HEAD", "refs/heads/gh-pages", "HEAD"),
+            ("refs/heads/main", main_sha, "branch"),
+            ("refs/heads/gh-pages", orphan_sha, "branch"),
+        }
+        assert_exact(nodes, edges, expected_nodes, expected_edges, "orphan normal mode")
+
+        bnodes, bedges, _ = full_graph(str(repo.path), mode="branch")
+        assert_exact(bnodes, bedges, {"main", "gh-pages"}, set(), "orphan branch topology")
+
+
+# ---------------------------------------------------------------------------
+# EP 12 (curriculum) -- Rebase Conflicts
+#
+# Mode: normal.  Mid-conflict, HEAD is detached directly at the onto commit
+# (rebase has not advanced past the first, conflicting replay); the target
+# branch ref has NOT moved yet; ORIG_HEAD preserves the pre-rebase tip.  After
+# --continue, HEAD reattaches to the branch, which now points at a new-SHA
+# commit, and ORIG_HEAD still preserves the original pre-rebase tip.
+# ---------------------------------------------------------------------------
+
+
+class TestRebaseConflictsFull:
+    def _build_conflicting_rebase(self, repo: RepoTools) -> tuple[str, str, str]:
+        repo.write("file.txt", "base")
+        base_sha = repo.commit("base")
+        repo.checkout("feature", new=True)
+        repo.write("file.txt", "feature version")
+        feature_sha = repo.commit("feature change")
+        repo.checkout("main")
+        repo.write("file.txt", "main version")
+        main_sha = repo.commit("main change")
+        try:
+            repo._run(["git", "rebase", "main", "feature"])
+        except Exception:
+            pass  # conflict expected
+        return base_sha, main_sha, feature_sha
+
+    def test_conflict_state_head_detached_at_onto_orig_head_at_pre_rebase_tip(
+        self, repo: RepoTools
+    ) -> None:
+        base_sha, main_sha, feature_sha = self._build_conflicting_rebase(repo)
+
+        nodes, edges, _ = full_graph(str(repo.path), mode="normal")
+        expected_nodes = {
+            "HEAD",
+            "ORIG_HEAD",
+            "refs/heads/main",
+            "refs/heads/feature",
+            base_sha,
+            main_sha,
+            feature_sha,
+        }
+        expected_edges = {
+            ("HEAD", main_sha, "HEAD"),  # detached, mid-rebase, sitting at the onto point
+            ("ORIG_HEAD", feature_sha, ""),
+            ("refs/heads/main", main_sha, "branch"),
+            ("refs/heads/feature", feature_sha, "branch"),  # unmoved -- rebase hasn't finished
+            (main_sha, base_sha, "parent"),
+            (feature_sha, base_sha, "parent"),
+        }
+        assert_exact(nodes, edges, expected_nodes, expected_edges, "mid-rebase conflict")
+
+    def test_continue_after_resolving_reattaches_head_new_sha_on_branch(
+        self, repo: RepoTools
+    ) -> None:
+        import os
+        import subprocess
+
+        base_sha, main_sha, feature_sha = self._build_conflicting_rebase(repo)
+        repo.write("file.txt", "resolved version")
+        repo._run(["git", "add", "file.txt"])
+        subprocess.check_call(
+            ["git", "rebase", "--continue"],
+            cwd=str(repo.path),
+            env={**os.environ, "GIT_EDITOR": "true"},
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
+        )
+        new_feature_sha = repo.rev_parse("feature")
+
+        nodes, edges, _ = full_graph(str(repo.path), mode="normal")
+        expected_nodes = {
+            "HEAD",
+            "ORIG_HEAD",
+            "refs/heads/main",
+            "refs/heads/feature",
+            base_sha,
+            main_sha,
+            feature_sha,  # the pre-rebase commit -- still around, kept alive by ORIG_HEAD
+            new_feature_sha,
+        }
+        expected_edges = {
+            ("HEAD", "refs/heads/feature", "HEAD"),  # reattached on completion
+            ("ORIG_HEAD", feature_sha, ""),
+            ("refs/heads/main", main_sha, "branch"),
+            ("refs/heads/feature", new_feature_sha, "branch"),
+            (main_sha, base_sha, "parent"),
+            (feature_sha, base_sha, "parent"),
+            (new_feature_sha, main_sha, "parent"),
+        }
+        assert_exact(nodes, edges, expected_nodes, expected_edges, "post rebase --continue")
+
+
+# ---------------------------------------------------------------------------
+# EP 15 (curriculum) -- One Remote Isn't Enough: origin, upstream, and the Fork
+# Workflow
+#
+# Mode: normal.  Two independent remote-tracking sets (origin/* and
+# upstream/*) coexist, both edging to the same commit right after both pushes.
+# ---------------------------------------------------------------------------
+
+
+class TestForkWorkflowFull:
+    def test_dual_remote_tracking_refs_exact(self, repo: RepoTools) -> None:
+        import subprocess as sp
+
+        upstream_path = repo.path.parent / (repo.path.name + "_upstream.git")
+        origin_path = repo.path.parent / (repo.path.name + "_origin.git")
+        for remote_path in (upstream_path, origin_path):
+            sp.check_call(
+                ["git", "init", "--bare", "-b", "main", str(remote_path)],
+                stdout=sp.DEVNULL,
+                stderr=sp.DEVNULL,
+            )
+        repo.write("a.txt")
+        c = repo.commit("initial")
+        repo._run(["git", "remote", "add", "origin", str(origin_path)])
+        repo._run(["git", "remote", "add", "upstream", str(upstream_path)])
+        repo._run(["git", "push", "-u", "origin", "main"])
+        repo._run(["git", "push", "upstream", "main"])
+
+        nodes, edges, _ = full_graph(str(repo.path), mode="normal")
+        expected_nodes = {
+            "HEAD",
+            "refs/heads/main",
+            "refs/remotes/origin/main",
+            "refs/remotes/upstream/main",
+            c,
+        }
+        expected_edges = {
+            ("HEAD", "refs/heads/main", "HEAD"),
+            ("refs/heads/main", c, "branch"),
+            ("refs/remotes/origin/main", c, "remote"),
+            ("refs/remotes/upstream/main", c, "remote"),
+        }
+        assert_exact(nodes, edges, expected_nodes, expected_edges, "dual remote")
+
+
+# ---------------------------------------------------------------------------
+# EP 21 (curriculum) -- Partial Commits: What git add -p Actually Stages
+#
+# Mode: verbose.  The same path exists as two distinct blob nodes at once: a
+# staged version (the index) and an unstaged version (the working tree),
+# reproducing the end-state of `git add -p` by staging an intermediate
+# revision directly.
+# ---------------------------------------------------------------------------
+
+
+class TestPartialCommitsFull:
+    def test_same_path_two_distinct_blobs_staged_and_unstaged(self, repo: RepoTools) -> None:
+        repo.write("app.py", "def run():\n    pass\n")
+        c = repo.commit("initial")
+        tree = repo.rev_parse(f"{c}^{{tree}}")
+
+        repo.write("app.py", "def run():\n    return fix()\n")
+        repo._run(["git", "add", "app.py"])
+        repo.write("app.py", "def run():\n    return fix()\nprint('debug')\n")
+
+        nodes, edges, _ = full_graph(str(repo.path), mode="verbose")
+        # The committed blob is unreachable from HEAD's tree anymore -- app.py's
+        # tree entry is exactly the ORIGINAL "pass" blob (nothing has been
+        # committed since), and the index/working-tree blobs are new sibling nodes.
+        committed_blob = repo.rev_parse(f"{c}:app.py")
+        expected_nodes = {
+            "HEAD",
+            "refs/heads/main",
+            c,
+            tree,
+            committed_blob,
+            "Staged Changes",
+            "staged|app.py",
+            "Unstaged Changes",
+            "unstaged|app.py",
+        }
+        expected_edges = {
+            ("HEAD", "refs/heads/main", "HEAD"),
+            ("refs/heads/main", c, "branch"),
+            (c, tree, "tree"),
+            (tree, committed_blob, "app.py"),
+            ("Staged Changes", "staged|app.py", "app.py"),
+            ("Unstaged Changes", "unstaged|app.py", "app.py"),
+        }
+        assert_exact(nodes, edges, expected_nodes, expected_edges, "partial staging")
+
+
+# ---------------------------------------------------------------------------
+# EP 23 (curriculum) -- Two Kinds of Squash: merge --squash vs rebase -i squash
+#
+# Mode: normal + verbose.  `git merge --squash` writes ORIG_HEAD (git treats it
+# as a merge attempt even though it moves nothing) and stages the combined diff
+# with NO commit.  The follow-up commit has exactly ONE parent -- no diamond --
+# and feature's branch ref is untouched, feature's own commits invisible from
+# main's history.
+# ---------------------------------------------------------------------------
+
+
+class TestMergeSquashFull:
+    def _build_squash_scenario(self, repo: RepoTools) -> tuple[str, str, str]:
+        """Two commits on feature -- feature_c1 is a lone boring commit (1 parent,
+        1 child, no ref) between base and the feature tip, and a LONE boring
+        commit does NOT collapse (only runs of 2+ do), so it stays a full node."""
+        repo.write("a.txt")
+        base_sha = repo.commit("base")
+        repo.checkout("feature", new=True)
+        repo.write("f1.txt")
+        feature_c1_sha = repo.commit("feature commit 1")
+        repo.write("f2.txt")
+        feature_sha = repo.commit("feature commit 2")
+        repo.checkout("main")
+        return base_sha, feature_c1_sha, feature_sha
+
+    def test_squash_stage_before_commit_exact(self, repo: RepoTools) -> None:
+        """Verbose mode walks EVERY reachable commit's tree, not just the tip -- so
+        base, feature_c1, and the feature tip each contribute their own tree
+        object (feature_c1 and the tip add one file each on top of base's)."""
+        base_sha, feature_c1_sha, feature_sha = self._build_squash_scenario(repo)
+        base_tree = repo.rev_parse(f"{base_sha}^{{tree}}")
+        a_blob = repo.rev_parse(f"{base_sha}:a.txt")
+        c1_tree = repo.rev_parse(f"{feature_c1_sha}^{{tree}}")
+        c1_f1_blob = repo.rev_parse(f"{feature_c1_sha}:f1.txt")
+        tip_tree = repo.rev_parse(f"{feature_sha}^{{tree}}")
+        tip_f2_blob = repo.rev_parse(f"{feature_sha}:f2.txt")
+        repo._run(["git", "merge", "--squash", "feature"])
+
+        nodes, edges, _ = full_graph(str(repo.path), mode="verbose")
+        expected_nodes = {
+            "HEAD",
+            "ORIG_HEAD",
+            "refs/heads/main",
+            "refs/heads/feature",
+            base_sha,
+            feature_c1_sha,
+            feature_sha,
+            base_tree,
+            a_blob,
+            c1_tree,
+            c1_f1_blob,
+            tip_tree,
+            tip_f2_blob,
+            "Staged Changes",
+            "staged|f1.txt",
+            "staged|f2.txt",
+        }
+        expected_edges = {
+            ("HEAD", "refs/heads/main", "HEAD"),
+            ("ORIG_HEAD", base_sha, ""),
+            ("refs/heads/main", base_sha, "branch"),
+            ("refs/heads/feature", feature_sha, "branch"),
+            (feature_sha, feature_c1_sha, "parent"),
+            (feature_c1_sha, base_sha, "parent"),
+            (base_sha, base_tree, "tree"),
+            (base_tree, a_blob, "a.txt"),
+            (feature_c1_sha, c1_tree, "tree"),
+            (c1_tree, a_blob, "a.txt"),
+            (c1_tree, c1_f1_blob, "f1.txt"),
+            (feature_sha, tip_tree, "tree"),
+            (tip_tree, a_blob, "a.txt"),
+            (tip_tree, c1_f1_blob, "f1.txt"),
+            (tip_tree, tip_f2_blob, "f2.txt"),
+            ("Staged Changes", "staged|f1.txt", "f1.txt"),
+            ("Staged Changes", "staged|f2.txt", "f2.txt"),
+        }
+        assert_exact(nodes, edges, expected_nodes, expected_edges, "squash stage pre-commit")
+
+    def test_squash_commit_single_parent_no_diamond_exact(self, repo: RepoTools) -> None:
+        base_sha, feature_c1_sha, feature_sha = self._build_squash_scenario(repo)
+        repo._run(["git", "merge", "--squash", "feature"])
+        squash_sha = repo.commit("Add feature")
+
+        nodes, edges, _ = full_graph(str(repo.path), mode="normal")
+        expected_nodes = {
+            "HEAD",
+            "ORIG_HEAD",
+            "refs/heads/main",
+            "refs/heads/feature",
+            base_sha,
+            feature_c1_sha,
+            feature_sha,
+            squash_sha,
+        }
+        expected_edges = {
+            ("HEAD", "refs/heads/main", "HEAD"),
+            ("ORIG_HEAD", base_sha, ""),
+            ("refs/heads/main", squash_sha, "branch"),
+            ("refs/heads/feature", feature_sha, "branch"),
+            (squash_sha, base_sha, "parent"),  # exactly ONE parent -- no diamond
+            (feature_sha, feature_c1_sha, "parent"),
+            (feature_c1_sha, base_sha, "parent"),
+        }
+        assert_exact(nodes, edges, expected_nodes, expected_edges, "squash commit")
+
+
+# ---------------------------------------------------------------------------
+# EP 24 (curriculum) -- Moving a Branch's Base: git rebase --onto
+#
+# Mode: normal.  `git rebase --onto main feature topic` replants topic's
+# commit directly on main's tip with a new SHA; feature's commit is completely
+# absent from the new chain even though feature's own ref (and commit) is
+# still present elsewhere in the graph.  ORIG_HEAD preserves topic's original
+# (feature-based) tip.
+# ---------------------------------------------------------------------------
+
+
+class TestRebaseOntoFull:
+    def test_onto_replants_topic_directly_on_main_exact(self, repo: RepoTools) -> None:
+        repo.write("a.txt")
+        main_sha = repo.commit("main base")
+        repo.checkout("feature", new=True)
+        repo.write("f1.txt")
+        feature_sha = repo.commit("feature commit")
+        repo.checkout("topic", new=True)
+        repo.write("t1.txt")
+        topic_sha = repo.commit("topic commit")
+
+        repo._run(["git", "rebase", "--onto", "main", "feature", "topic"])
+        new_topic_sha = repo.rev_parse("topic")
+
+        nodes, edges, _ = full_graph(str(repo.path), mode="normal")
+        expected_nodes = {
+            "HEAD",
+            "ORIG_HEAD",
+            "refs/heads/main",
+            "refs/heads/feature",
+            "refs/heads/topic",
+            main_sha,
+            feature_sha,
+            topic_sha,
+            new_topic_sha,
+        }
+        expected_edges = {
+            ("HEAD", "refs/heads/topic", "HEAD"),
+            ("ORIG_HEAD", topic_sha, ""),
+            ("refs/heads/main", main_sha, "branch"),
+            ("refs/heads/feature", feature_sha, "branch"),
+            ("refs/heads/topic", new_topic_sha, "branch"),
+            (feature_sha, main_sha, "parent"),
+            (topic_sha, feature_sha, "parent"),  # the ORIGINAL topic commit: still based on feature
+            (new_topic_sha, main_sha, "parent"),  # the REPLAYED commit: skips feature entirely
+        }
+        assert_exact(nodes, edges, expected_nodes, expected_edges, "rebase --onto")
+
+
+# ---------------------------------------------------------------------------
+# EP 34 (curriculum) -- Thin Slices: Shallow Clones and Grafted History
+#
+# Mode: normal.  A --depth 1 clone's sole commit renders with zero parent
+# edges (an honest gap, not a lie about being the root); `git fetch
+# --unshallow` retroactively grows the graph backward, and FETCH_HEAD appears
+# pointing at the tip (from the unshallow fetch).
+# ---------------------------------------------------------------------------
+
+
+class TestShallowClonesFull:
+    def _build_shallow_clone(self, repo: RepoTools) -> tuple[list[str], "object"]:
+        import subprocess as sp
+
+        shas = []
+        for i in range(3):
+            repo.write(f"f{i}.txt")
+            shas.append(repo.commit(f"commit {i}"))
+        clone_path = repo.path.parent / (repo.path.name + "_shallow")
+        sp.check_call(
+            ["git", "clone", "--depth", "1", f"file://{repo.path}", str(clone_path)],
+            stdout=sp.DEVNULL,
+            stderr=sp.DEVNULL,
+        )
+        return shas, clone_path
+
+    def test_shallow_clone_boundary_commit_zero_parents_exact(self, repo: RepoTools) -> None:
+        shas, clone_path = self._build_shallow_clone(repo)
+
+        nodes, edges, _ = full_graph(str(clone_path), mode="normal")
+        expected_nodes = {"HEAD", "refs/heads/main", "refs/remotes/origin/main", shas[-1]}
+        expected_edges = {
+            ("HEAD", "refs/heads/main", "HEAD"),
+            ("refs/heads/main", shas[-1], "branch"),
+            ("refs/remotes/origin/main", shas[-1], "remote"),
+        }
+        assert_exact(nodes, edges, expected_nodes, expected_edges, "shallow boundary")
+
+    def test_fetch_unshallow_grows_graph_backward_exact(self, repo: RepoTools) -> None:
+        import subprocess as sp
+
+        shas, clone_path = self._build_shallow_clone(repo)
+        sp.check_call(
+            ["git", "fetch", "--unshallow"],
+            cwd=str(clone_path),
+            stdout=sp.DEVNULL,
+            stderr=sp.DEVNULL,
+        )
+
+        nodes, edges, _ = full_graph(str(clone_path), mode="normal")
+        expected_nodes = {
+            "HEAD",
+            "FETCH_HEAD",
+            "refs/heads/main",
+            "refs/remotes/origin/main",
+            *shas,
+        }
+        expected_edges = {
+            ("HEAD", "refs/heads/main", "HEAD"),
+            ("FETCH_HEAD", shas[-1], ""),
+            ("refs/heads/main", shas[-1], "branch"),
+            ("refs/remotes/origin/main", shas[-1], "remote"),
+            (shas[2], shas[1], "parent"),
+            (shas[1], shas[0], "parent"),
+        }
+        assert_exact(nodes, edges, expected_nodes, expected_edges, "post unshallow")
+
+    # Note: this class deliberately does NOT rely on the file:// clone path
+    # working identically on every CI runner's git build; if that ever proves
+    # flaky, guard with a git-version/platform check rather than deleting the
+    # coverage (repo.py's shallow-boundary handling is exactly what these
+    # tests exist to protect).
+    # Exhaustive correctness is enforced by the autouse oracle cross-check.
